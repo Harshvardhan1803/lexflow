@@ -1,0 +1,110 @@
+@import "tailwindcss";
+
+html {
+  scroll-behavior: smooth;
+}
+
+@theme inline {
+  --color-primary: #0F172A;
+  --color-primary-foreground: #FFFFFF;
+  --color-secondary: #64748B;
+  --color-secondary-foreground: #0F172A;
+  --color-accent: var(--brand-primary);
+  --color-accent-foreground: #ffffff;
+  --color-muted: #F8FAFC;
+  --color-muted-foreground: #64748B;
+  --color-border: #E2E8F0;
+  --color-card: #FFFFFF;
+  --color-card-foreground: #0F172A;
+
+  /* Custom Generic Brand Colors */
+  --color-brand-light: var(--brand-light);
+  --color-brand-soft: var(--brand-soft);
+  
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-display: "Outfit", system-ui, sans-serif;
+  
+  --radius-xl: 1.5rem;
+  --radius-2xl: 2.5rem;
+  --radius-3xl: 4rem;
+  --radius-lg: 1rem;
+  --radius-md: 0.75rem;
+  --radius-sm: 0.5rem;
+
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-pulse-slow: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  --animate-spin-slow: spin 8s linear infinite;
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-15px); }
+  }
+}
+
+:root {
+  /* THEME CORE - CHANGE THIS TO UPDATE ENTIRE SITE */
+  --brand-primary: #C08552;
+  --brand-light: #FBF6F1;
+  --brand-soft: rgba(192, 133, 82, 0.1);
+  --brand-gradient: linear-gradient(to right, #C08552, #E0A96D);
+  
+  --background: #FFFFFF;
+  --foreground: #0F172A;
+  --glass: rgba(255, 255, 255, 0.85);
+  --glass-border: rgba(15, 23, 42, 0.08);
+  --selection: rgba(192, 133, 82, 0.2);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0F172A;
+    --foreground: #F8FAFC;
+    --glass: rgba(15, 23, 42, 0.85);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --color-border: #1E293B;
+    --color-muted: #1E293B;
+    --color-card: #1E293B;
+    --selection: rgba(192, 133, 82, 0.3);
+  }
+}
+
+* {
+  border-color: var(--color-border);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: var(--selection);
+}
+
+.glass {
+  background: var(--glass);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 8px 32px 0 rgba(15, 23, 42, 0.05);
+}
+
+.text-gradient {
+  background: var(--brand-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.bg-brand-light {
+  background-color: var(--brand-light);
+}
+
+.border-brand-soft {
+  border-color: var(--brand-soft);
+}
+
+.section-padding {
+  @apply py-24 md:py-32;
+}
