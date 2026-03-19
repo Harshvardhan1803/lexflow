@@ -2,192 +2,109 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Bot, FileText, ChevronRight, Gavel, Scale, AlertCircle, Bookmark, Share2 } from "lucide-react";
-import { UploadZone } from "@/components/dashboard/upload-zone";
-import { AnalysisAnimation } from "@/components/dashboard/analysis-animation";
-import { cn } from "@/utils/utils";
-
-type ViewState = "upload" | "processing" | "results";
+import { Sparkles, History } from "lucide-react";
+import { SummarizerUpload } from "@/components/dashboard/summarizer-upload";
+import { SummaryResults } from "@/components/dashboard/summary-results";
+import { SummaryHistoryDrawer } from "@/components/dashboard/summary-history-drawer";
 
 export default function AIDiscoveryPage() {
-  const [view, setView] = useState<ViewState>("upload");
-  const [fileName, setFileName] = useState("");
-
-  const handleFileSelect = (file: File) => {
-    setFileName(file.name);
-    setView("processing");
-
-    /**
-     * AI DISCOVERY INTEGRATION (CLAUDE VISION / PDF):
-     * 1. Wrap the file in FormData and send it to the `/api/ai/analyze` route.
-     * 2. On the backend, Claude 3.5 Sonnet (with PDF parsing) reads the file.
-     * 3. Claude returns structured JSON: 
-     *    { summary: "...", entities: [...], strategy: "..." }
-     * 4. Save this data to state to populate the "Results" view dynamically.
-     */
-  };
-
-  const handleAnalysisComplete = () => {
-    setView("results");
-  };
+  const [summaryData, setSummaryData] = useState<any>(null);
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
 
   return (
-    <div className="space-y-10 min-h-[calc(100vh-10rem)]">
+    <div className="space-y-4 min-h-[calc(100vh-10rem)]">
       {/* Page Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-display font-bold text-slate-900 mb-2 tracking-tight">
-            AI Discovery Workspace
+           <div className="flex items-center gap-2 mb-0.5">
+             <div className="w-6 h-6 bg-accent rounded-md flex items-center justify-center text-white shadow-lg shadow-accent/20">
+                <Sparkles size={12} />
+             </div>
+             <span className="text-[8px] font-black uppercase tracking-widest text-accent">AI Core Analysis</span>
+           </div>
+          <h1 className="text-xl font-display font-bold text-slate-900 mb-0.5 tracking-tight">
+            Document Summarizer
           </h1>
-          <p className="text-slate-500 font-medium max-w-lg italic">
-            &quot;Autonomous intelligence for legal truth extraction.&quot;
+          <p className="text-[10px] text-slate-500 font-medium">
+            Autonomous intelligence for legal truth extraction.
           </p>
         </div>
         
-        <AnimatePresence>
-          {view === "results" && (
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="flex items-center gap-3"
-            >
-              <button className="p-3 rounded-xl bg-white border border-slate-100 text-slate-500 hover:text-accent transition-all shadow-sm">
-                <Share2 size={18} />
-              </button>
-              <button className="px-6 py-3 bg-slate-900 text-white rounded-xl font-bold flex items-center gap-2 shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all">
-                Export Discovery Report <ChevronRight size={18} />
-              </button>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        <div className="flex items-center gap-3">
+          <button 
+            onClick={() => setIsHistoryOpen(true)}
+            className="px-5 py-2.5 bg-white border border-slate-100 text-slate-500 rounded-xl font-bold flex items-center gap-2 hover:bg-slate-50 transition-all shadow-sm text-xs"
+          >
+            <History size={16} /> View History
+          </button>
+        </div>
       </div>
 
-      {/* Main Interactive View */}
-      <div className="bg-white border border-slate-100 rounded-3xl p-8 shadow-sm min-h-[500px] flex flex-col items-center justify-center relative overflow-hidden">
-        {/* Background Gradients */}
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-accent/5 blur-[120px] rounded-full" />
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-brand-soft/50 blur-[120px] rounded-full" />
-
+      {/* Main Workspace */}
+      <div className="relative">
         <AnimatePresence mode="wait">
-          {view === "upload" && (
+          {!summaryData ? (
             <motion.div
-              key="upload"
-              initial={{ opacity: 0, y: 20 }}
+              key="upload-view"
+              initial={{ opacity: 0, scale: 0.98 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.98 }}
+              className="bg-white border border-slate-100 rounded-3xl p-6 md:p-10 shadow-sm flex flex-col items-center justify-center overflow-hidden min-h-[400px] relative"
+            >
+              {/* Background Glow */}
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-radial-gradient from-accent/5 to-transparent pointer-events-none" />
+              
+              <div className="relative z-10 w-full max-w-xl mx-auto space-y-6">
+                <div className="text-center space-y-1">
+                   <h2 className="text-2xl font-display font-bold text-slate-900">Analyze Complex Documents</h2>
+                   <p className="text-[10px] text-slate-500 font-medium">Upload discovery files, contracts, or medical records for instant structured summaries.</p>
+                </div>
+                
+                <SummarizerUpload onSummaryGenerated={(data) => setSummaryData(data)} />
+
+                <div className="grid grid-cols-3 gap-4 pt-4 border-t border-slate-50">
+                   <FeatureIcon label="Court Filings" icon={<ScaleIcon />} />
+                   <FeatureIcon label="Contracts" icon={<DocIcon />} />
+                   <FeatureIcon label="Discovery" icon={<SearchIcon />} />
+                </div>
+              </div>
+            </motion.div>
+          ) : (
+            <motion.div
+              key="results-view"
+              initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95 }}
               className="w-full"
             >
-              <UploadZone onFileSelect={handleFileSelect} />
-            </motion.div>
-          )}
-
-          {view === "processing" && (
-            <motion.div
-              key="processing"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="w-full"
-            >
-              <AnalysisAnimation onComplete={handleAnalysisComplete} />
-            </motion.div>
-          )}
-
-          {view === "results" && (
-            <motion.div
-              key="results"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="w-full max-w-4xl space-y-8"
-            >
-              {/* Discovery Summary Header */}
-              <div className="flex items-start gap-6 p-6 rounded-3xl bg-slate-50 border border-slate-100 relative">
-                <div className="w-14 h-14 bg-accent text-white rounded-2xl flex items-center justify-center shadow-lg shadow-accent/30 relative z-10">
-                  <FileText size={24} />
-                </div>
-                <div>
-                  <h3 className="text-xl font-display font-bold text-slate-900 mb-1">{fileName || "Motion_to_Dismiss_Draft.pdf"}</h3>
-                  <div className="flex items-center gap-4">
-                    <span className="text-xs font-bold text-accent uppercase tracking-wider">AI Score: 94% Accuracy</span>
-                    <span className="w-1 h-1 rounded-full bg-slate-300" />
-                    <span className="text-xs font-medium text-slate-500">Processed in 4.2s by LexFlow Engine</span>
-                  </div>
-                </div>
-                <div className="ml-auto flex items-center gap-2">
-                  <Bookmark className="text-slate-300 hover:text-accent cursor-pointer transition-colors" size={20} />
-                </div>
-              </div>
-
-              {/* Data Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {/* Legal Summary */}
-                <div className="space-y-4">
-                  <h4 className="text-sm font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2">
-                    <Scale size={16} className="text-accent" /> Legal Narrative
-                  </h4>
-                  <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm leading-relaxed text-slate-600 text-sm">
-                    This document primarily addresses a **Motion to Dismiss** based on lack of personal jurisdiction. The plaintiff fails to establish sufficient minimum contacts between the defendant and the forum state. Key precedents cited include *International Shoe Co. v. Washington* and *Daimler AG v. Bauman*.
-                  </div>
-                </div>
-
-                {/* Key Entities */}
-                <div className="space-y-4">
-                  <h4 className="text-sm font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2">
-                    <Gavel size={16} className="text-accent" /> Key Entities
-                  </h4>
-                  <div className="flex flex-wrap gap-3">
-                    <EntityBadge type="Defendant" label="TechCorp Solutions LLC" />
-                    <EntityBadge type="Jurisdiction" label="Southern District of NY" />
-                    <EntityBadge type="Deadline" label="April 12, 2024" isUrgent />
-                    <EntityBadge type="Precedent" label="Ford Motor Co. v. Montana" />
-                  </div>
-                </div>
-              </div>
-
-              {/* AI Insight Box */}
-              <div className="p-6 rounded-2xl bg-slate-950 text-white relative overflow-hidden group border border-slate-800 shadow-xl">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-accent/20 blur-3xl opacity-50 group-hover:opacity-100 transition-opacity" />
-                <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 bg-accent rounded-xl flex items-center justify-center shrink-0">
-                    <Bot size={20} />
-                  </div>
-                  <div>
-                    <h5 className="font-bold mb-1">LexFlow Strategy Insight</h5>
-                    <p className="text-sm text-slate-400 leading-relaxed font-medium">
-                      The defense argument regarding &quot;general jurisdiction&quot; appears weak. Recommendation: Focus on **Specific Jurisdiction** and the lack of a causal link between the defendant&apos;s forum-state conduct and the plaintiff&apos;s claim.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Reset Button */}
-              <div className="flex justify-center pt-8">
-                <button 
-                  onClick={() => setView("upload")}
-                  className="text-sm font-bold text-slate-400 hover:text-accent flex items-center gap-2 transition-colors"
-                >
-                  <AlertCircle size={14} /> Process another document
-                </button>
-              </div>
+              <SummaryResults 
+                data={summaryData} 
+                onReset={() => setSummaryData(null)} 
+              />
             </motion.div>
           )}
         </AnimatePresence>
       </div>
+
+      <SummaryHistoryDrawer 
+        isOpen={isHistoryOpen}
+        onClose={() => setIsHistoryOpen(false)}
+        onSelectSummary={(data) => setSummaryData(data)}
+      />
     </div>
   );
 }
 
-function EntityBadge({ type, label, isUrgent }: { type: string, label: string, isUrgent?: boolean }) {
+function FeatureIcon({ label, icon }: { label: string, icon: React.ReactNode }) {
   return (
-    <div className={cn(
-      "px-4 py-2 rounded-xl border flex flex-col gap-0.5 transition-all hover:border-accent hover:shadow-md",
-      isUrgent ? "bg-red-50 border-red-100" : "bg-white border-slate-100"
-    )}>
-      <span className={cn(
-        "text-[9px] font-black uppercase tracking-wider",
-        isUrgent ? "text-red-500" : "text-slate-400"
-      )}>{type}</span>
-      <span className="text-xs font-bold text-slate-800">{label}</span>
+    <div className="flex items-center justify-center gap-2">
+      <div className="w-8 h-8 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400 border border-slate-100">
+        {icon}
+      </div>
+      <span className="text-[8px] font-black uppercase tracking-widest text-slate-400">{label}</span>
     </div>
   );
 }
+
+function ScaleIcon() { return <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/></svg>; }
+function DocIcon() { return <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>; }
+function SearchIcon() { return <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>; }
