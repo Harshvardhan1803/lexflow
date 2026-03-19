@@ -34,6 +34,8 @@ interface CaseNotesDrawerProps {
   leadName: string;
 }
 
+import { LexLoader } from "../ui/loader";
+
 export function CaseNotesDrawer({ isOpen, onClose, leadId, leadName }: CaseNotesDrawerProps) {
   const [notes, setNotes] = useState<Note[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -158,8 +160,8 @@ export function CaseNotesDrawer({ isOpen, onClose, leadId, leadName }: CaseNotes
               {activeTab === "history" ? (
                 <div className="space-y-6">
                   {isLoading ? (
-                    <div className="h-full flex items-center justify-center">
-                      <Loader2 className="animate-spin text-accent/40" size={32} />
+                    <div className="h-96 flex items-center justify-center">
+                      <LexLoader label="Loading History..." />
                     </div>
                   ) : filteredNotes.length > 0 ? (
                     filteredNotes.map((note, idx) => (

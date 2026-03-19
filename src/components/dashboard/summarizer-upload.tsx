@@ -2,8 +2,9 @@
 
 import { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Upload, FileText, CheckCircle2, Loader2, Sparkles, AlertCircle } from "lucide-react";
+import { Upload, FileText, CheckCircle2, Loader2, Sparkles, AlertCircle, X } from "lucide-react";
 import { cn } from "@/utils/utils";
+import { LexLoader } from "../ui/loader";
 
 interface SummarizerUploadProps {
   onSummaryGenerated: (data: any) => void;
@@ -124,14 +125,8 @@ export function SummarizerUpload({ onSummaryGenerated }: SummarizerUploadProps) 
                 </button>
               ) : (
                 <div className="space-y-6 w-full max-w-md mx-auto">
-                  <div className="flex flex-col items-center gap-4">
-                    <Loader2 className="animate-spin text-accent" size={32} />
-                    <div>
-                      <h4 className="text-sm font-bold text-slate-900">Extracting Insights...</h4>
-                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">LexFlow AI Core is processing your request</p>
-                    </div>
-                  </div>
-                  <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                  <LexLoader label="Extracting Insights..." />
+                  <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden -mt-4">
                     <motion.div
                       initial={{ width: 0 }}
                       animate={{ width: "95%" }}
@@ -145,7 +140,6 @@ export function SummarizerUpload({ onSummaryGenerated }: SummarizerUploadProps) 
           )}
         </div>
 
-        {/* Decorative elements */}
         <div className="absolute -top-12 -right-12 w-32 h-32 bg-accent/5 rounded-full blur-3xl" />
         <div className="absolute -bottom-12 -left-12 w-32 h-32 bg-accent/5 rounded-full blur-3xl" />
       </div>
@@ -160,24 +154,5 @@ export function SummarizerUpload({ onSummaryGenerated }: SummarizerUploadProps) 
         </motion.div>
       )}
     </div>
-  );
-}
-
-function X({ size, className }: { size: number, className?: string }) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-    >
-      <path d="M18 6 6 18" /><path d="m6 6 12 12" />
-    </svg>
   );
 }

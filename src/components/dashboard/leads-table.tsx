@@ -35,6 +35,8 @@ export interface Lead {
 
 const mockLeads: Lead[] = [];
 
+import { LexLoader } from "../ui/loader";
+
 export function LeadsTable({ leads = [], isLoading = false }: { leads?: Lead[], isLoading?: boolean }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeStatus, setActiveStatus] = useState<LeadStatus | "All">("All");
@@ -71,11 +73,8 @@ export function LeadsTable({ leads = [], isLoading = false }: { leads?: Lead[], 
 
   if (isLoading) {
     return (
-      <div className="w-full h-64 flex items-center justify-center bg-white border border-slate-100 rounded-xl">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-10 h-10 border-4 border-accent/20 border-t-accent rounded-full animate-spin" />
-          <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">Loading Leads...</p>
-        </div>
+      <div className="w-full h-96 flex items-center justify-center bg-white border border-slate-100 rounded-xl">
+        <LexLoader label="Fetching Leads..." />
       </div>
     );
   }
