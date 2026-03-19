@@ -17,6 +17,8 @@ import {
 import { cn } from "@/utils/utils";
 import { DeadlineTracker } from "./deadline-tracker";
 import { AddDeadlineModal } from "./add-deadline-modal";
+import Tooltip from '@mui/material/Tooltip';
+import Zoom from '@mui/material/Zoom';
 
 interface Note {
   id: string;
@@ -98,9 +100,11 @@ export function CaseNotesDrawer({ isOpen, onClose, leadId, leadName }: CaseNotes
                   <p className="text-xs font-bold text-slate-400">{leadName}</p>
                 </div>
               </div>
-              <button onClick={onClose} className="p-2 hover:bg-slate-50 rounded-full transition-colors">
-                <X size={20} className="text-slate-400" />
-              </button>
+              <Tooltip title="Close Drawer" placement="left" arrow slots={{ transition: Zoom }} slotProps={{ tooltip: { sx: { bgcolor: '#0f172a', fontWeight: 700, borderRadius: '8px' } } }}>
+                <button onClick={onClose} className="p-2 hover:bg-slate-50 rounded-full transition-colors">
+                  <X size={20} className="text-slate-400" />
+                </button>
+              </Tooltip>
             </div>
 
             {/* Tabs */}
@@ -138,12 +142,14 @@ export function CaseNotesDrawer({ isOpen, onClose, leadId, leadName }: CaseNotes
                 />
               </div>
               {activeTab === "deadlines" && (
-                <button
-                  onClick={() => setIsAddDeadlineOpen(true)}
-                  className="p-2 bg-slate-900 border border-slate-900 text-white rounded-xl hover:bg-slate-800 transition-all shadow-lg shadow-slate-900/10"
-                >
-                  <Plus size={18} />
-                </button>
+                <Tooltip title="Add New Deadline" placement="left" arrow slots={{ transition: Zoom }} slotProps={{ tooltip: { sx: { bgcolor: '#0f172a', fontWeight: 700, borderRadius: '8px' } } }}>
+                  <button
+                    onClick={() => setIsAddDeadlineOpen(true)}
+                    className="p-2 bg-slate-900 border border-slate-900 text-white rounded-xl hover:bg-slate-800 transition-all shadow-lg shadow-slate-900/10"
+                  >
+                    <Plus size={18} />
+                  </button>
+                </Tooltip>
               )}
             </div>
 

@@ -17,6 +17,8 @@ import Link from "next/link";
 import { cn } from "@/utils/utils";
 import { AIDraftModal } from "./ai-draft-modal";
 import { CaseNotesDrawer } from "./case-notes-drawer";
+import Tooltip from '@mui/material/Tooltip';
+import Zoom from '@mui/material/Zoom';
 
 export type LeadStatus = "New" | "Screening" | "Qualified" | "Disqualified" | "Converted";
 
@@ -163,39 +165,49 @@ export function LeadsTable({ leads = [], isLoading = false }: { leads?: Lead[], 
                     </td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button
-                          onClick={() => setSelectedLeadForDraft(lead)}
-                          className="p-2 text-accent hover:bg-brand-soft rounded-lg transition-all"
-                          title="AI Draft Response"
-                        >
-                          <Sparkles size={16} />
-                        </button>
-                        <button
-                          onClick={() => setSelectedLeadForHistory(lead)}
-                          className="p-2 text-slate-400 hover:text-accent hover:bg-slate-50 rounded-lg transition-all"
-                          title="View Case History"
-                        >
-                          <Clock size={16} />
-                        </button>
-                        <Link
-                          href={`/portal/${lead.id}`}
-                          className="p-2 text-slate-400 hover:text-accent hover:bg-brand-soft rounded-lg transition-all"
-                          title="View Client Portal"
-                        >
-                          <ExternalLink size={16} />
-                        </Link>
-                        {lead.status !== ("case" as any) && (
+                        <Tooltip title="AI Draft Response" placement="top" arrow slots={{ transition: Zoom }} slotProps={{ tooltip: { sx: { bgcolor: '#0f172a', fontWeight: 700, borderRadius: '8px' } } }}>
                           <button
-                            onClick={() => handleStatusUpdate(lead.id, "Converted")}
-                            className="p-2 text-slate-400 hover:text-green-500 hover:bg-green-50 rounded-lg transition-all"
-                            title="Convert to Case"
+                            onClick={() => setSelectedLeadForDraft(lead)}
+                            className="p-2 text-accent hover:bg-brand-soft rounded-lg transition-all"
                           >
-                            <Briefcase size={16} />
+                            <Sparkles size={16} />
                           </button>
+                        </Tooltip>
+
+                        <Tooltip title="View Case History" placement="top" arrow slots={{ transition: Zoom }} slotProps={{ tooltip: { sx: { bgcolor: '#0f172a', fontWeight: 700, borderRadius: '8px' } } }}>
+                          <button
+                            onClick={() => setSelectedLeadForHistory(lead)}
+                            className="p-2 text-slate-400 hover:text-accent hover:bg-slate-50 rounded-lg transition-all"
+                          >
+                            <Clock size={16} />
+                          </button>
+                        </Tooltip>
+
+                        <Tooltip title="View Client Portal" placement="top" arrow slots={{ transition: Zoom }} slotProps={{ tooltip: { sx: { bgcolor: '#0f172a', fontWeight: 700, borderRadius: '8px' } } }}>
+                          <Link
+                            href={`/portal/${lead.id}`}
+                            className="p-2 text-slate-400 hover:text-accent hover:bg-brand-soft rounded-lg transition-all"
+                          >
+                            <ExternalLink size={16} />
+                          </Link>
+                        </Tooltip>
+
+                        {lead.status !== ("case" as any) && (
+                          <Tooltip title="Convert to Case" placement="top" arrow slots={{ transition: Zoom }} slotProps={{ tooltip: { sx: { bgcolor: '#0f172a', fontWeight: 700, borderRadius: '8px' } } }}>
+                            <button
+                              onClick={() => handleStatusUpdate(lead.id, "Converted")}
+                              className="p-2 text-slate-400 hover:text-green-500 hover:bg-green-50 rounded-lg transition-all"
+                            >
+                              <Briefcase size={16} />
+                            </button>
+                          </Tooltip>
                         )}
-                        <button className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-all">
-                          <MoreHorizontal size={16} />
-                        </button>
+
+                        <Tooltip title="More Actions" placement="top" arrow slots={{ transition: Zoom }} slotProps={{ tooltip: { sx: { bgcolor: '#0f172a', fontWeight: 700, borderRadius: '8px' } } }}>
+                          <button className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-all">
+                            <MoreHorizontal size={16} />
+                          </button>
+                        </Tooltip>
                       </div>
                     </td>
                   </motion.tr>
