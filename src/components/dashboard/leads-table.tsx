@@ -25,25 +25,29 @@ export interface Lead {
   type: string;
 }
 
-const mockLeads: Lead[] = [
-  { id: "1", name: "Sarah Johnson", email: "sarah.j@example.com", phone: "+1 234 567 8901", source: "Google Search", status: "New", date: "2024-03-15", type: "Personal Injury" },
-  { id: "2", name: "Michael Chen", email: "m.chen@example.com", phone: "+1 345 678 9012", source: "Referral", status: "Screening", date: "2024-03-14", type: "Immigration" },
-  { id: "3", name: "Elena Rodriguez", email: "elena.r@example.com", phone: "+1 456 789 0123", source: "Facebook Ad", status: "Qualified", date: "2024-03-14", type: "Family Law" },
-  { id: "4", name: "David Wilson", email: "d.wilson@example.com", phone: "+1 567 890 1234", source: "Website Widget", status: "Disqualified", date: "2024-03-13", type: "Criminal Defense" },
-  { id: "5", name: "Amanda Lee", email: "amanda.lee@example.com", phone: "+1 678 901 2345", source: "Website Widget", status: "Converted", date: "2024-03-12", type: "Personal Injury" },
-  { id: "6", name: "Robert Taylor", email: "r.taylor@example.com", phone: "+1 789 012 3456", source: "LinkedIn", status: "New", date: "2024-03-12", type: "Employment Law" },
-];
+const mockLeads: Lead[] = [];
 
-export function LeadsTable() {
+export function LeadsTable({ leads = [], isLoading = false }: { leads?: Lead[], isLoading?: boolean }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeStatus, setActiveStatus] = useState<LeadStatus | "All">("All");
 
-  const filteredLeads = mockLeads.filter(lead => {
+  const filteredLeads = leads.filter(lead => {
     const matchesSearch = lead.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                          lead.email.toLowerCase().includes(searchTerm.toLowerCase());
+                          (lead.email && lead.email.toLowerCase().includes(searchTerm.toLowerCase()));
     const matchesStatus = activeStatus === "All" || lead.status === activeStatus;
     return matchesSearch && matchesStatus;
   });
+
+  if (isLoading) {
+    return (
+      <div className="w-full h-64 flex items-center justify-center bg-white border border-slate-100 rounded-2xl">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-10 h-10 border-4 border-accent/20 border-t-accent rounded-full animate-spin" />
+          <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">Loading Leads...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

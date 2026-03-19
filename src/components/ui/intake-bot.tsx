@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MessageSquare, X, Send, Bot } from "lucide-react";
+import { MessageSquare, X, Send, Bot, Sparkles } from "lucide-react";
 import { cn } from "@/utils/utils";
 import { useCallback } from "react";
 
@@ -13,13 +13,34 @@ interface Message {
   timestamp: Date;
 }
 
-const QUESTIONS = [
+const INITIAL_QUESTIONS = [
   "Hi! I'm Lexi, your LexFlow assistant. What's your full name?",
-  "Great to meet you, {name}! Briefly, what kind of legal help are you looking for today?",
-  "I understand. And which city or state are you located in?",
-  "Got it. Lastly, what's the best phone number to reach you at?",
-  "Thank you! A member of our legal team will review your case and contact you shortly. Have a great day!"
+  "Great to meet you, {name}! To get started, what kind of case is this? (e.g., Accident, Family Law, Immigration, etc.)"
 ];
+
+const FLOWS: Record<string, string[]> = {
+  Accident: [
+    "I'm sorry to hear that. When did the accident occur?",
+    "Were there any injuries reported at the scene?",
+    "Lastly, what's a good phone number and email for a quick follow-up?"
+  ],
+  Immigration: [
+    "Understood. Are you looking for help with a Visa, Green Card, or something else?",
+    "Is there an upcoming hearing or deadline we should know about?",
+    "Lastly, what's a good phone number and email for a quick follow-up?"
+  ],
+  Default: [
+    "I see. Could you briefly describe the situation?",
+    "And which city or state are you located in?",
+    "Lastly, what's a good phone number and email for a quick follow-up?"
+  ]
+};
+
+interface SessionData {
+  name: string;
+  caseType: string;
+  answers: string[];
+}
 
 export function IntakeBot() {
   const [isOpen, setIsOpen] = useState(false);
@@ -27,43 +48,37 @@ export function IntakeBot() {
   const [inputValue, setInputValue] = useState("");
   const [step, setStep] = useState(0);
   const [isTyping, setIsTyping] = useState(false);
-  const [userName, setUserName] = useState("");
+  const [sessionData, setSessionData] = useState<SessionData>({
+    name: "",
+    caseType: "",
+    answers: []
+  });
+  const [isCompleted, setIsCompleted] = useState(false);
+  
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const sendBotMessage = useCallback((text: string) => {
     setIsTyping(true);
-    const delay = 1500; // Fixed delay for consistency in prototype
-
-    /**
-     * AI INTEGRATION POINT (CLAUDE):
-     * Instead of using the static QUESTIONS array, send a fetch request to the AI route here:
-     * 
-     * const response = await fetch('/api/chat', { 
-     *   method: 'POST', 
-     *   body: JSON.stringify({ message: userMessage, history: messages }) 
-     * });
-     * 
-     * The dynamic response from Claude will be set as the next message.
-     */
+    const delay = 1200;
 
     setTimeout(() => {
       setIsTyping(false);
       const newMessage: Message = {
         id: Math.random().toString(36).substring(7),
-        text: text.replace("{name}", userName),
+        text: text.replace("{name}", sessionData.name),
         sender: "bot",
         timestamp: new Date()
       };
       setMessages(prev => [...prev, newMessage]);
     }, delay);
-  }, [userName]);
+  }, [sessionData.name]);
 
   // Initial Greeting
   useEffect(() => {
     if (isOpen && messages.length === 0) {
       const timer = setTimeout(() => {
-        sendBotMessage(QUESTIONS[0]);
-      }, 500); // Small initial delay for premium feel
+        sendBotMessage(INITIAL_QUESTIONS[0]);
+      }, 500);
       return () => clearTimeout(timer);
     }
   }, [isOpen, messages.length, sendBotMessage]);
@@ -73,6 +88,38 @@ export function IntakeBot() {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages, isTyping]);
+
+  const saveLead = async (data: SessionData) => {
+    try {
+      // LEAD SCORING LOGIC (Simulated)
+      // Accidents or mentions of 'injury' get higher scores
+      let score = 50;
+      const combinedText = data.answers.join(" ").toLowerCase();
+      if (data.caseType.toLowerCase().includes("accident") || combinedText.includes("injury")) score += 30;
+      if (combinedText.includes("urgent") || combinedText.includes("deadline")) score += 15;
+
+      const response = await fetch("/api/leads", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: data.name,
+          case_type: data.caseType,
+          intake_answers: data.answers,
+          lead_score: score,
+          // Simple regex to extract email/phone from final answer for this demo
+          email: combinedText.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/)?.[0] || "",
+          phone: combinedText.match(/\+?\d[\d\s-]{8,}\d/)?.[0] || ""
+        })
+      });
+      
+      if (response.ok) {
+        setIsCompleted(true);
+        sendBotMessage("Thank you! I've logged your case. Our team will review this immediately. Would you like to pick a time for a free consultation right now?");
+      }
+    } catch (error) {
+      console.error("Failed to save lead:", error);
+    }
+  };
 
   const handleSend = () => {
     if (!inputValue.trim() || isTyping) return;
@@ -87,22 +134,32 @@ export function IntakeBot() {
     setMessages(prev => [...prev, userMsg]);
     setInputValue("");
 
-    /**
-     * AI DATA EXTRACTION (CLAUDE):
-     * After each user message, Claude can be used to extract structured data:
-     * "Does this message contain Name, Case Type, or Phone number?"
-     * 
-     * If extracted, update the corresponding states (userName, caseType, etc.)
-     * to ensure structured leads are saved to the database at the end of the flow.
-     */
-
-    // Logic for next question
-    if (step === 0) setUserName(inputValue);
-    
     const nextStep = step + 1;
-    if (nextStep < QUESTIONS.length) {
-      setStep(nextStep);
-      sendBotMessage(QUESTIONS[nextStep]);
+    setStep(nextStep);
+
+    // DYNAMIC LOGIC
+    const updatedData = { ...sessionData };
+    if (step === 0) {
+      updatedData.name = inputValue;
+    } else if (step === 1) {
+      updatedData.caseType = inputValue;
+    }
+    updatedData.answers.push(inputValue);
+    setSessionData(updatedData);
+
+    // Determine next question
+    if (nextStep === 1) {
+      sendBotMessage(INITIAL_QUESTIONS[1]);
+    } else {
+      const flowKey = FLOWS[updatedData.caseType] ? updatedData.caseType : "Default";
+      const flow = FLOWS[flowKey];
+      const flowStep = nextStep - 2;
+
+      if (flowStep < flow.length) {
+        sendBotMessage(flow[flowStep]);
+      } else if (!isCompleted) {
+        saveLead(updatedData);
+      }
     }
   };
 
@@ -225,7 +282,7 @@ export function IntakeBot() {
 
             {/* Input Area */}
             <div className="p-4 bg-white border-t border-slate-100">
-              {step < QUESTIONS.length - 1 ? (
+              {!isCompleted ? (
                 <div className="flex gap-2">
                   <input
                     autoFocus
@@ -245,10 +302,18 @@ export function IntakeBot() {
                   </button>
                 </div>
               ) : (
-                <div className="flex flex-col items-center gap-3 py-2">
+                <div className="flex flex-col items-center gap-4 py-4">
                   <div className="flex items-center gap-2 text-green-600 font-bold text-sm">
-                    <CheckCircle2 size={16} /> Lead Captured Successfully
+                    <CheckCircle2 size={16} /> Data Logged to CRM
                   </div>
+                  <a 
+                    href="https://calendar.google.com/calendar/r/eventedit?text=Legal+Consultation+with+LexFlow&details=Initial+Intake+Follow-up" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="w-full py-3 bg-accent text-white rounded-2xl font-bold text-center flex items-center justify-center gap-2 shadow-lg shadow-accent/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
+                  >
+                    <Sparkles size={16} /> Book Consultation Now
+                  </a>
                   <button 
                     onClick={() => setIsOpen(false)}
                     className="text-xs font-black uppercase tracking-widest text-slate-400 hover:text-accent transition-colors underline"

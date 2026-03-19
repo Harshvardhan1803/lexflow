@@ -1,14 +1,64 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { UserPlus, Download } from "lucide-react";
 import { cn } from "@/utils/utils";
-import { LeadsTable } from "@/components/dashboard/leads-table";
+import { LeadsTable, Lead } from "@/components/dashboard/leads-table";
 import { NewLeadModal } from "@/components/dashboard/new-lead-modal";
 
 export default function LeadsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [leads, setLeads] = useState<Lead[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const fetchLeads = async () => {
+    try {
+      setIsLoading(true);
+      const res = await fetch("/api/leads");
+      if (res.ok) {
+        const json = await res.json();
+        const data = json.data || [];
+        
+        // Map DB data to UI data
+        const mappedLeads: Lead[] = data.map((item: {
+          id: number;
+          name: string;
+          email?: string;
+          phone?: string;
+          intake_answers?: Record<string, any>;
+          status: string;
+          created_at: string;
+          lead_score?: number;
+        }) => ({
+          id: item.id.toString(),
+          name: item.name,
+          email: item.email || "No Email",
+          phone: item.phone || "No Phone",
+          source: item.intake_answers?.source || "Website Widget",
+          // Map DB status 'lead' to UI 'New' for this demo
+          status: item.status === 'lead' ? 'New' : item.status,
+          date: new Date(item.created_at).toISOString().split('T')[0],
+          type: item.intake_answers?.selected_case_type || "General Intake",
+          score: item.lead_score
+        }));
+        setLeads(mappedLeads);
+      }
+    } catch (err) {
+      console.error("Fetch leads failed:", err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchLeads();
+  }, []);
+
+  const totalLeads = leads.length;
+  const newLeads = leads.filter(l => l.status === 'New').length;
+  const conversionPoints = leads.filter(l => l.status === 'Converted').length;
+  const conversionRate = totalLeads > 0 ? ((conversionPoints / totalLeads) * 100).toFixed(1) : "0";
 
   return (
     <div className="space-y-10">
@@ -40,31 +90,34 @@ export default function LeadsPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <LeadStatCard 
           label="Total Active Leads" 
-          value="156" 
-          increase="+12" 
-          increaseLabel="this week"
+          value={totalLeads.toString()} 
+          increase={totalLeads > 0 ? `+${totalLeads}` : "0"} 
+          increaseLabel="Live system"
         />
         <LeadStatCard 
           label="Conversion Rate" 
-          value="24.8%" 
-          increase="+3.2%" 
-          increaseLabel="vs last month"
+          value={`${conversionRate}%`} 
+          increaseLabel="from database"
         />
         <LeadStatCard 
           label="AI Screening Queue" 
-          value="8" 
-          isWarning={true}
-          increaseLabel="Needs attention"
+          value={newLeads.toString()} 
+          isWarning={newLeads > 5}
+          increaseLabel={newLeads > 0 ? "Needs attention" : "Queue clear"}
         />
       </div>
 
       {/* Main Content: Table */}
       <div className="pt-4">
-        <LeadsTable />
+        <LeadsTable leads={leads} isLoading={isLoading} />
       </div>
 
       {/* Modals */}
-      <NewLeadModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      <NewLeadModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+        onSuccess={fetchLeads}
+      />
     </div>
   );
 }
