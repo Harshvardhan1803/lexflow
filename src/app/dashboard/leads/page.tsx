@@ -20,28 +20,30 @@ export default function LeadsPage() {
         const json = await res.json();
         const data = json.data || [];
         
-        // Map DB data to UI data
-        const mappedLeads: Lead[] = data.map((item: {
-          id: number;
-          name: string;
-          email?: string;
-          phone?: string;
-          intake_answers?: Record<string, unknown>;
-          status: string;
-          created_at: string;
-          lead_score?: number;
-        }) => ({
-          id: item.id.toString(),
-          name: item.name,
-          email: item.email || "No Email",
-          phone: item.phone || "No Phone",
-          source: item.intake_answers?.source || "Website Widget",
-          // Map DB status 'lead' to UI 'New' for this demo
-          status: item.status === 'lead' ? 'New' : item.status,
-          date: new Date(item.created_at).toISOString().split('T')[0],
-          type: item.intake_answers?.selected_case_type || "General Intake",
-          score: item.lead_score
-        }));
+        // Map DB data to UI data and filter only for 'lead' status
+        const mappedLeads: Lead[] = data
+          .filter((item: any) => item.status === 'lead') // Only show leads on the intake page
+          .map((item: {
+            id: number;
+            name: string;
+            email?: string;
+            phone?: string;
+            intake_answers?: Record<string, unknown>;
+            status: string;
+            created_at: string;
+            lead_score?: number;
+          }) => ({
+            id: item.id.toString(),
+            name: item.name,
+            email: item.email || "No Email",
+            phone: item.phone || "No Phone",
+            source: item.intake_answers?.source || "Website Widget",
+            // Map DB status 'lead' to UI 'New' for this demo
+            status: item.status === 'lead' ? 'New' : item.status,
+            date: new Date(item.created_at).toISOString().split('T')[0],
+            type: item.intake_answers?.selected_case_type || "General Intake",
+            score: item.lead_score
+          }));
         setLeads(mappedLeads);
       }
     } catch (err) {

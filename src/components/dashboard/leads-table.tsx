@@ -9,7 +9,8 @@ import {
   ExternalLink,
   ArrowUpDown,
   Sparkles,
-  Clock
+  Clock,
+  Briefcase
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
@@ -38,10 +39,31 @@ export function LeadsTable({ leads = [], isLoading = false }: { leads?: Lead[], 
   const [selectedLeadForDraft, setSelectedLeadForDraft] = useState<Lead | null>(null);
   const [selectedLeadForHistory, setSelectedLeadForHistory] = useState<Lead | null>(null);
 
+  const handleStatusUpdate = async (id: string, newStatus: string) => {
+    try {
+      const res = await fetch(`/api/leads/${id}`, {
+        method: "PATCH",
+        body: JSON.stringify({ status: newStatus }),
+        headers: { "Content-Type": "application/json" }
+      });
+      if (res.ok) {
+        // In a real app we'd refresh the parent data, for now we can just alert or wait for next fetch
+        alert(`Lead successfully updated to ${newStatus}!`);
+        window.location.reload(); // Simple refresh to show changes
+      }
+    } catch (err) {
+      console.error("Status update failed:", err);
+    }
+  };
+
   const filteredLeads = leads.filter(lead => {
+    // Map database 'case' status to UI 'Converted' status, and 'lead' to 'New'
+    const dbStatus = lead.status as any;
+    const uiStatus = dbStatus === "case" ? "Converted" : (dbStatus === "lead" ? "New" : dbStatus);
+    
     const matchesSearch = lead.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
                           (lead.email && lead.email.toLowerCase().includes(searchTerm.toLowerCase()));
-    const matchesStatus = activeStatus === "All" || lead.status === activeStatus;
+    const matchesStatus = activeStatus === "All" || uiStatus === activeStatus;
     return matchesSearch && matchesStatus;
   });
 
@@ -137,7 +159,7 @@ export function LeadsTable({ leads = [], isLoading = false }: { leads?: Lead[], 
                       {lead.source}
                     </td>
                     <td className="px-6 py-4">
-                      <StatusBadge status={lead.status} />
+                      <StatusBadge status={lead.status === ("case" as any) ? "Converted" : lead.status} />
                     </td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -157,12 +179,20 @@ export function LeadsTable({ leads = [], isLoading = false }: { leads?: Lead[], 
                         </button>
                         <Link 
                           href={`/portal/${lead.id}`} 
-                          // target="_self"
                           className="p-2 text-slate-400 hover:text-accent hover:bg-brand-soft rounded-lg transition-all" 
                           title="View Client Portal"
                         >
                           <ExternalLink size={16} />
                         </Link>
+                        {lead.status !== ("case" as any) && (
+                          <button 
+                            onClick={() => handleStatusUpdate(lead.id, "Converted")}
+                            className="p-2 text-slate-400 hover:text-green-500 hover:bg-green-50 rounded-lg transition-all" 
+                            title="Convert to Case"
+                          >
+                            <Briefcase size={16} />
+                          </button>
+                        )}
                         <button className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-all">
                           <MoreHorizontal size={16} />
                         </button>

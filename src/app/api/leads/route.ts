@@ -5,7 +5,7 @@ import { pool } from "@/lib/database";
 export async function GET() {
   try {
     const result = await pool.query(
-      "SELECT * FROM contacts WHERE status = 'lead' ORDER BY created_at DESC"
+      "SELECT * FROM contacts ORDER BY created_at DESC"
     );
     
     if (result.rows.length === 0) {
