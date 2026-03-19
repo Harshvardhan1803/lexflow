@@ -10,6 +10,7 @@ import {
   ArrowUpDown
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import Link from "next/link";
 import { cn } from "@/utils/utils";
 
 export type LeadStatus = "New" | "Screening" | "Qualified" | "Disqualified" | "Converted";
@@ -134,9 +135,14 @@ export function LeadsTable({ leads = [], isLoading = false }: { leads?: Lead[], 
                     </td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button className="p-2 text-slate-400 hover:text-accent hover:bg-brand-soft rounded-lg transition-all" title="View Details">
+                        <Link 
+                          href={`/portal/${lead.id}`} 
+                          // target="_self"
+                          className="p-2 text-slate-400 hover:text-accent hover:bg-brand-soft rounded-lg transition-all" 
+                          title="View Client Portal"
+                        >
                           <ExternalLink size={16} />
-                        </button>
+                        </Link>
                         <button className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-all">
                           <MoreHorizontal size={16} />
                         </button>

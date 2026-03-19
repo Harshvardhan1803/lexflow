@@ -26,7 +26,7 @@ export default function LeadsPage() {
           name: string;
           email?: string;
           phone?: string;
-          intake_answers?: Record<string, any>;
+          intake_answers?: Record<string, unknown>;
           status: string;
           created_at: string;
           lead_score?: number;
