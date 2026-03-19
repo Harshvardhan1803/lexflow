@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { 
-  Briefcase, 
-  Search, 
-  Filter, 
+import {
+  Briefcase,
+  Search,
+  Filter,
   MoreHorizontal,
   ChevronRight,
   Clock,
@@ -42,12 +42,12 @@ export default function ActiveCasesPage() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
-           <div className="flex items-center gap-2 mb-1">
-             <div className="w-7 h-7 bg-slate-900 rounded-lg flex items-center justify-center text-white shadow-lg shadow-slate-900/20">
-                <Briefcase size={14} />
-             </div>
-             <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">Firm Operations</span>
-           </div>
+          <div className="flex items-center gap-2 mb-1">
+            <div className="w-7 h-7 bg-slate-900 rounded-lg flex items-center justify-center text-white shadow-lg shadow-slate-900/20">
+              <Briefcase size={14} />
+            </div>
+            <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">Firm Operations</span>
+          </div>
           <h1 className="text-2xl font-display font-bold text-slate-900 mb-1 tracking-tight">
             Active Case Management
           </h1>
@@ -59,39 +59,39 @@ export default function ActiveCasesPage() {
 
       {/* Stats Overview */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <StatCard 
-          label="Total Active Cases" 
-          value={cases.length.toString()} 
-          subtext="From your leads funnel" 
-          icon={<Briefcase size={18} />} 
+        <StatCard
+          label="Total Active Cases"
+          value={cases.length.toString()}
+          subtext="From your leads funnel"
+          icon={<Briefcase size={18} />}
         />
-        <StatCard 
-          label="Upcoming Deadlines" 
-          value="12" 
-          subtext="Next 7 days" 
-          icon={<Clock size={18} />} 
+        <StatCard
+          label="Upcoming Deadlines"
+          value="12"
+          subtext="Next 7 days"
+          icon={<Clock size={18} />}
           variant="accent"
         />
-        <StatCard 
-          label="Risk Alerts" 
-          value="2" 
-          subtext="Requires attention" 
-          icon={<AlertCircle size={18} />} 
+        <StatCard
+          label="Risk Alerts"
+          value="2"
+          subtext="Requires attention"
+          icon={<AlertCircle size={18} />}
           variant="danger"
         />
       </div>
 
       {/* Main Content - Reusing LeadsTable with case filter */}
-      <div className="bg-white border border-slate-100 rounded-3xl p-8 shadow-sm">
+      <div className="bg-white border border-slate-100 rounded-xl p-8 shadow-sm">
         <div className="flex items-center justify-between mb-8">
-           <h2 className="text-lg font-display font-bold text-slate-900">Litigation Queue</h2>
-           <div className="flex gap-2">
-              <button className="px-4 py-2 border border-slate-100 rounded-xl text-xs font-bold text-slate-500 hover:bg-slate-50 transition-all flex items-center gap-2">
-                <Filter size={14} /> Filter
-              </button>
-           </div>
+          <h2 className="text-lg font-display font-bold text-slate-900">Litigation Queue</h2>
+          <div className="flex gap-2">
+            <button className="px-4 py-2 border border-slate-100 rounded-xl text-xs font-bold text-slate-500 hover:bg-slate-50 transition-all flex items-center gap-2">
+              <Filter size={14} /> Filter
+            </button>
+          </div>
         </div>
-        
+
         <LeadsTable leads={cases} isLoading={isLoading} />
       </div>
     </div>
@@ -104,7 +104,7 @@ function StatCard({ label, value, subtext, icon, variant = "default" }: any) {
     accent: "bg-accent/5 border-accent/20",
     danger: "bg-red-50 border-red-100"
   };
-  
+
   const iconStyles = {
     default: "bg-slate-50 text-slate-400",
     accent: "bg-accent text-white",
@@ -112,7 +112,7 @@ function StatCard({ label, value, subtext, icon, variant = "default" }: any) {
   };
 
   return (
-    <div className={cn("p-6 rounded-3xl border shadow-sm space-y-4", styles[variant as keyof typeof styles])}>
+    <div className={cn("p-6 rounded-xl border shadow-sm space-y-4", styles[variant as keyof typeof styles])}>
       <div className="flex items-center justify-between">
         <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center", iconStyles[variant as keyof typeof iconStyles])}>
           {icon}

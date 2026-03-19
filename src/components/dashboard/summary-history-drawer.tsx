@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  X, 
-  History, 
-  FileText, 
+import {
+  X,
+  History,
+  FileText,
   Search,
   Loader2,
   ChevronRight,
@@ -51,7 +51,7 @@ export function SummaryHistoryDrawer({ isOpen, onClose, onSelectSummary }: Summa
     }
   }, [isOpen]);
 
-  const filteredHistory = history.filter(h => 
+  const filteredHistory = history.filter(h =>
     h.file_name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -66,7 +66,7 @@ export function SummaryHistoryDrawer({ isOpen, onClose, onSelectSummary }: Summa
             onClick={onClose}
             className="fixed inset-0 z-100 bg-slate-900/40 backdrop-blur-[2px]"
           />
-          
+
           <motion.div
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
@@ -92,8 +92,8 @@ export function SummaryHistoryDrawer({ isOpen, onClose, onSelectSummary }: Summa
             <div className="p-6 pb-2">
               <div className="relative group">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-accent transition-colors" size={16} />
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   placeholder="Find a document..."
                   className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-100 rounded-xl outline-none focus:ring-2 focus:ring-accent/5 focus:border-accent transition-all text-xs font-medium"
                   value={searchTerm}
@@ -115,7 +115,7 @@ export function SummaryHistoryDrawer({ isOpen, onClose, onSelectSummary }: Summa
                       onSelectSummary(item.summary_json);
                       onClose();
                     }}
-                    className="w-full text-left p-4 rounded-2xl border border-slate-50 hover:border-accent/20 hover:bg-accent/5 transition-all group relative overflow-hidden"
+                    className="w-full text-left p-4 rounded-xl border border-slate-50 hover:border-accent/20 hover:bg-accent/5 transition-all group relative overflow-hidden"
                   >
                     <div className="flex items-start gap-4">
                       <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-accent group-hover:text-white transition-all">
@@ -124,11 +124,11 @@ export function SummaryHistoryDrawer({ isOpen, onClose, onSelectSummary }: Summa
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-bold text-slate-900 truncate mb-1">{item.file_name}</p>
                         <div className="flex items-center gap-3">
-                           <span className="flex items-center gap-1 text-[10px] font-bold text-slate-400">
-                             <Clock size={10} /> {new Date(item.created_at).toLocaleDateString()}
-                           </span>
-                           <span className="w-1 h-1 rounded-full bg-slate-200" />
-                           <span className="text-[10px] font-black text-accent uppercase tracking-widest">Analysis Ready</span>
+                          <span className="flex items-center gap-1 text-[10px] font-bold text-slate-400">
+                            <Clock size={10} /> {new Date(item.created_at).toLocaleDateString()}
+                          </span>
+                          <span className="w-1 h-1 rounded-full bg-slate-200" />
+                          <span className="text-[10px] font-black text-accent uppercase tracking-widest">Analysis Ready</span>
                         </div>
                       </div>
                       <ChevronRight size={16} className="text-slate-300 group-hover:text-accent transition-all mt-1" />
@@ -144,9 +144,9 @@ export function SummaryHistoryDrawer({ isOpen, onClose, onSelectSummary }: Summa
             </div>
 
             <div className="p-6 bg-slate-50 border-t border-slate-100 text-center">
-               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                 Last 10 Analysis Results
-               </p>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                Last 10 Analysis Results
+              </p>
             </div>
           </motion.div>
         </>

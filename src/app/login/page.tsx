@@ -35,7 +35,7 @@ export default function LoginPage() {
 
       // Store token in cookie
       document.cookie = `lexflow_token=${data.token}; path=/; max-age=${60 * 60 * 24}; SameSite=Lax`;
-      
+
       // Store user role and name in localStorage for UI
       localStorage.setItem("user", JSON.stringify(data.user));
 
@@ -60,7 +60,7 @@ export default function LoginPage() {
         <div className="absolute bottom-[-10%] left-[-10%] w-[30%] h-[30%] bg-accent/5 blur-[100px] rounded-full" />
       </div>
 
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
@@ -77,16 +77,16 @@ export default function LoginPage() {
           <p className="text-slate-500 text-base font-medium">Sign in to manage your firm&apos;s cases.</p>
         </div>
 
-        <div className="bg-white border border-slate-200 p-8 md:p-10 rounded-2xl shadow-xl">
+        <div className="bg-white border border-slate-200 p-8 md:p-10 rounded-xl shadow-xl">
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="space-y-1.5">
               <label className="text-xs font-bold text-slate-700 ml-1">Email Address</label>
               <div className="relative group">
                 <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-accent transition-colors" size={18} />
-                <input 
+                <input
                   name="email"
-                  type="email" 
-                  placeholder="name@firm.com" 
+                  type="email"
+                  placeholder="name@firm.com"
                   required
                   className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3.5 pl-11 pr-4 focus:outline-none focus:ring-2 focus:ring-accent/15 focus:border-accent transition-all hover:bg-slate-100 font-medium text-sm"
                 />
@@ -100,10 +100,10 @@ export default function LoginPage() {
               </div>
               <div className="relative group">
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-accent transition-colors" size={18} />
-                <input 
+                <input
                   name="password"
-                  type="password" 
-                  placeholder="••••••••" 
+                  type="password"
+                  placeholder="••••••••"
                   required
                   className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3.5 pl-11 pr-4 focus:outline-none focus:ring-2 focus:ring-accent/15 focus:border-accent transition-all hover:bg-slate-100 font-medium text-sm"
                 />
@@ -111,7 +111,7 @@ export default function LoginPage() {
             </div>
 
             {error && (
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 className="p-4 rounded-xl bg-red-50 border border-red-100 text-red-600 text-sm font-bold"
@@ -120,10 +120,10 @@ export default function LoginPage() {
               </motion.div>
             )}
 
-            <button 
+            <button
               disabled={loading}
               type="submit"
-              className="w-full bg-primary text-primary-foreground py-3 rounded-2xl font-bold text-lg hover:bg-accent hover:shadow-xl hover:shadow-accent/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 group disabled:opacity-70 disabled:hover:scale-100"
+              className="w-full bg-primary text-primary-foreground py-3 rounded-xl font-bold text-lg hover:bg-accent hover:shadow-xl hover:shadow-accent/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 group disabled:opacity-70 disabled:hover:scale-100"
             >
               {loading ? <Loader2 className="animate-spin" /> : (
                 <>

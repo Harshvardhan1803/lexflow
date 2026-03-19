@@ -135,9 +135,9 @@ export function Navbar() {
               </Link>
             </>
           )}
-          
+
           {/* Mobile Toggle */}
-          <button 
+          <button
             className="md:hidden w-10 h-10 flex items-center justify-center text-slate-900 bg-slate-50 rounded-lg border border-slate-200"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
@@ -173,12 +173,12 @@ export function Navbar() {
                     <div className="w-1.5 h-1.5 rounded-full bg-accent opacity-0 group-hover:opacity-100 transition-opacity" />
                   </Link>
                 ))}
-                
+
                 <div className="mt-4 pt-6 border-t border-slate-100 flex flex-col gap-4">
                   {isMounted && user ? (
                     <>
-                      <Link 
-                        href="/dashboard" 
+                      <Link
+                        href="/dashboard"
                         onClick={() => setMobileMenuOpen(false)}
                         className="flex items-center justify-between p-4 rounded-xl bg-brand-light text-slate-900 font-bold"
                       >
@@ -187,7 +187,7 @@ export function Navbar() {
                           Dashboard
                         </div>
                       </Link>
-                      <button 
+                      <button
                         onClick={() => {
                           setShowLogoutModal(true);
                           setMobileMenuOpen(false);
@@ -202,7 +202,7 @@ export function Navbar() {
                     <>
                       <Link href="/login" onClick={() => setMobileMenuOpen(false)} className="text-center font-bold text-slate-700 py-3">Sign In</Link>
                       <Link href="/signup" onClick={() => setMobileMenuOpen(false)}>
-                        <button className="w-full bg-accent text-white py-4 rounded-2xl font-bold shadow-lg shadow-accent/20">Get Started</button>
+                        <button className="w-full bg-accent text-white py-4 rounded-xl font-bold shadow-lg shadow-accent/20">Get Started</button>
                       </Link>
                     </>
                   )}
@@ -213,10 +213,10 @@ export function Navbar() {
         )}
       </AnimatePresence>
 
-      <LogoutModal 
-        isOpen={showLogoutModal} 
-        onClose={() => setShowLogoutModal(false)} 
-        onConfirm={handleLogout} 
+      <LogoutModal
+        isOpen={showLogoutModal}
+        onClose={() => setShowLogoutModal(false)}
+        onConfirm={handleLogout}
       />
     </header>
   );

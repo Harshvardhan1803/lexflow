@@ -2,12 +2,12 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  X, 
-  History, 
-  Clock, 
-  FileText, 
-  MessageSquare, 
+import {
+  X,
+  History,
+  Clock,
+  FileText,
+  MessageSquare,
   Sparkles,
   Search,
   Loader2,
@@ -61,8 +61,8 @@ export function CaseNotesDrawer({ isOpen, onClose, leadId, leadName }: CaseNotes
     }
   }, [isOpen, leadId]);
 
-  const filteredNotes = notes.filter(n => 
-    n.content.toLowerCase().includes(searchTerm.toLowerCase()) || 
+  const filteredNotes = notes.filter(n =>
+    n.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
     n.type.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -78,7 +78,7 @@ export function CaseNotesDrawer({ isOpen, onClose, leadId, leadName }: CaseNotes
             onClick={onClose}
             className="fixed inset-0 z-100 bg-slate-900/40 backdrop-blur-[2px]"
           />
-          
+
           {/* Drawer */}
           <motion.div
             initial={{ x: "100%" }}
@@ -105,32 +105,32 @@ export function CaseNotesDrawer({ isOpen, onClose, leadId, leadName }: CaseNotes
 
             {/* Tabs */}
             <div className="flex px-6 mt-4">
-               <button 
-                 onClick={() => setActiveTab("history")}
-                 className={cn(
-                   "flex-1 py-3 text-[10px] font-black uppercase tracking-widest border-b-2 transition-all",
-                   activeTab === "history" ? "border-accent text-accent" : "border-transparent text-slate-400"
-                 )}
-               >
-                 Activity History
-               </button>
-               <button 
-                 onClick={() => setActiveTab("deadlines")}
-                 className={cn(
-                   "flex-1 py-3 text-[10px] font-black uppercase tracking-widest border-b-2 transition-all",
-                   activeTab === "deadlines" ? "border-accent text-accent" : "border-transparent text-slate-400"
-                 )}
-               >
-                 Deadline Tracker
-               </button>
+              <button
+                onClick={() => setActiveTab("history")}
+                className={cn(
+                  "flex-1 py-3 text-[10px] font-black uppercase tracking-widest border-b-2 transition-all",
+                  activeTab === "history" ? "border-accent text-accent" : "border-transparent text-slate-400"
+                )}
+              >
+                Activity History
+              </button>
+              <button
+                onClick={() => setActiveTab("deadlines")}
+                className={cn(
+                  "flex-1 py-3 text-[10px] font-black uppercase tracking-widest border-b-2 transition-all",
+                  activeTab === "deadlines" ? "border-accent text-accent" : "border-transparent text-slate-400"
+                )}
+              >
+                Deadline Tracker
+              </button>
             </div>
 
             {/* Search / Context Actions */}
             <div className="p-6 pb-0 flex items-center gap-3">
               <div className="relative group flex-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-accent transition-colors" size={16} />
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   placeholder={activeTab === "history" ? "Filter history..." : "Search deadlines..."}
                   className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-100 rounded-xl outline-none focus:ring-2 focus:ring-accent/5 focus:border-accent transition-all text-xs font-medium"
                   value={searchTerm}
@@ -138,7 +138,7 @@ export function CaseNotesDrawer({ isOpen, onClose, leadId, leadName }: CaseNotes
                 />
               </div>
               {activeTab === "deadlines" && (
-                <button 
+                <button
                   onClick={() => setIsAddDeadlineOpen(true)}
                   className="p-2 bg-slate-900 border border-slate-900 text-white rounded-xl hover:bg-slate-800 transition-all shadow-lg shadow-slate-900/10"
                 >
@@ -177,7 +177,7 @@ export function CaseNotesDrawer({ isOpen, onClose, leadId, leadName }: CaseNotes
                             </span>
                             <Clock size={10} className="text-slate-300" />
                           </div>
-                          <div className="p-4 bg-slate-50 border border-slate-50 rounded-2xl group-hover:border-slate-100 transition-colors">
+                          <div className="p-4 bg-slate-50 border border-slate-50 rounded-xl group-hover:border-slate-100 transition-colors">
                             <p className="text-xs font-medium text-slate-600 leading-relaxed whitespace-pre-wrap">
                               {note.content}
                             </p>
@@ -201,16 +201,16 @@ export function CaseNotesDrawer({ isOpen, onClose, leadId, leadName }: CaseNotes
 
             {/* Footer Status */}
             <div className="p-6 bg-slate-50/50 border-t border-slate-100 flex items-center justify-between">
-               <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                 <Clock size={12} className="text-accent" /> {activeTab === "history" ? "History Tracking Enabled" : "Compliance Monitoring Active"}
-               </span>
-               <span className="text-[10px] font-bold text-slate-400">
-                 {activeTab === "history" ? `${filteredNotes.length} Items` : "Calculated Automagically"}
-               </span>
+              <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                <Clock size={12} className="text-accent" /> {activeTab === "history" ? "History Tracking Enabled" : "Compliance Monitoring Active"}
+              </span>
+              <span className="text-[10px] font-bold text-slate-400">
+                {activeTab === "history" ? `${filteredNotes.length} Items` : "Calculated Automagically"}
+              </span>
             </div>
           </motion.div>
 
-          <AddDeadlineModal 
+          <AddDeadlineModal
             isOpen={isAddDeadlineOpen}
             onClose={() => setIsAddDeadlineOpen(false)}
             leadId={Number(leadId)}

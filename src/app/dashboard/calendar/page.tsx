@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { 
-  Calendar as CalendarIcon, 
-  ChevronLeft, 
+import {
+  Calendar as CalendarIcon,
+  ChevronLeft,
   ChevronRight,
   Clock,
   AlertCircle,
@@ -51,12 +51,12 @@ export default function CalendarPage() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
-           <div className="flex items-center gap-2 mb-1">
-             <div className="w-6 h-6 bg-accent rounded-lg flex items-center justify-center text-white shadow-lg shadow-accent/20">
-                <CalendarIcon size={12} />
-             </div>
-             <span className="text-[8px] font-black uppercase tracking-widest text-accent">Compliance Central</span>
-           </div>
+          <div className="flex items-center gap-2 mb-1">
+            <div className="w-6 h-6 bg-accent rounded-lg flex items-center justify-center text-white shadow-lg shadow-accent/20">
+              <CalendarIcon size={12} />
+            </div>
+            <span className="text-[8px] font-black uppercase tracking-widest text-accent">Compliance Central</span>
+          </div>
           <h1 className="text-2xl font-display font-bold text-slate-900 mb-1 tracking-tight">
             Universal Calendar
           </h1>
@@ -65,23 +65,23 @@ export default function CalendarPage() {
           </p>
         </div>
 
-        <div className="flex items-center bg-white border border-slate-100 rounded-2xl p-1 shadow-sm">
-           <button onClick={prevMonth} className="p-2 hover:bg-slate-50 rounded-xl transition-all text-slate-400">
-             <ChevronLeft size={20} />
-           </button>
-           <div className="px-6 text-sm font-bold text-slate-900 min-w-[140px] text-center">
-             {monthName} {currentDate.getFullYear()}
-           </div>
-           <button onClick={nextMonth} className="p-2 hover:bg-slate-50 rounded-xl transition-all text-slate-400">
-             <ChevronRight size={20} />
-           </button>
+        <div className="flex items-center bg-white border border-slate-100 rounded-xl p-1 shadow-sm">
+          <button onClick={prevMonth} className="p-2 hover:bg-slate-50 rounded-xl transition-all text-slate-400">
+            <ChevronLeft size={20} />
+          </button>
+          <div className="px-6 text-sm font-bold text-slate-900 min-w-[140px] text-center">
+            {monthName} {currentDate.getFullYear()}
+          </div>
+          <button onClick={nextMonth} className="p-2 hover:bg-slate-50 rounded-xl transition-all text-slate-400">
+            <ChevronRight size={20} />
+          </button>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
         {/* Calendar Grid */}
         <div className="lg:col-span-3 space-y-4">
-          <div className="bg-white border border-slate-100 rounded-3xl overflow-hidden shadow-sm">
+          <div className="bg-white border border-slate-100 rounded-xl overflow-hidden shadow-sm">
             <div className="grid grid-cols-7 border-b border-slate-50 bg-slate-50/50">
               {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
                 <div key={day} className="py-4 text-center text-[10px] font-black uppercase tracking-widest text-slate-400">
@@ -103,16 +103,16 @@ export default function CalendarPage() {
                     isToday && "bg-accent/[0.02]"
                   )}>
                     <div className="flex justify-between items-start mb-2">
-                       <span className={cn(
-                         "text-xs font-bold w-6 h-6 flex items-center justify-center rounded-lg",
-                         isToday ? "bg-accent text-white" : "text-slate-400"
-                       )}>
-                         {day}
-                       </span>
+                      <span className={cn(
+                        "text-xs font-bold w-6 h-6 flex items-center justify-center rounded-lg",
+                        isToday ? "bg-accent text-white" : "text-slate-400"
+                      )}>
+                        {day}
+                      </span>
                     </div>
                     <div className="space-y-1">
                       {dayEvents.map(event => (
-                        <div 
+                        <div
                           key={event.id}
                           className={cn(
                             "px-2 py-1 rounded-md text-[9px] font-bold truncate transition-all cursor-pointer border",
@@ -133,29 +133,29 @@ export default function CalendarPage() {
 
         {/* Sidebar / List View */}
         <div className="space-y-6">
-           <div className="bg-slate-900 rounded-3xl p-6 text-white space-y-4 relative overflow-hidden">
-              <div className="relative z-10 space-y-4">
-                <div className="flex items-center gap-2">
-                  <Clock size={16} className="text-accent" />
-                  <span className="text-[10px] font-black uppercase tracking-widest text-accent">Upcoming Priority</span>
-                </div>
-                <h3 className="text-lg font-display font-bold leading-tight">Prepare for Smith Hearing</h3>
-                <p className="text-xs text-slate-400 font-medium">Detailed brief due in 48 hours for the superior court session.</p>
-                <button className="w-full py-3 bg-accent text-white rounded-xl text-xs font-bold shadow-lg shadow-accent/20 hover:scale-[1.02] transition-all">
-                  Set Reminder
-                </button>
+          <div className="bg-slate-900 rounded-xl p-6 text-white space-y-4 relative overflow-hidden">
+            <div className="relative z-10 space-y-4">
+              <div className="flex items-center gap-2">
+                <Clock size={16} className="text-accent" />
+                <span className="text-[10px] font-black uppercase tracking-widest text-accent">Upcoming Priority</span>
               </div>
-              <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-accent/10 rounded-full blur-3xl" />
-           </div>
+              <h3 className="text-lg font-display font-bold leading-tight">Prepare for Smith Hearing</h3>
+              <p className="text-xs text-slate-400 font-medium">Detailed brief due in 48 hours for the superior court session.</p>
+              <button className="w-full py-3 bg-accent text-white rounded-xl text-xs font-bold shadow-lg shadow-accent/20 hover:scale-[1.02] transition-all">
+                Set Reminder
+              </button>
+            </div>
+            <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-accent/10 rounded-full blur-3xl" />
+          </div>
 
-           <div className="bg-white border border-slate-100 rounded-3xl p-6 space-y-6 shadow-sm">
-             <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">Weekly Summary</h3>
-             <div className="space-y-4">
-                <EventSummary icon={<Clock size={16} />} label="Filing Deadlines" count="4" color="text-red-500" />
-                <EventSummary icon={<Briefcase size={16} />} label="Court Appearances" count="2" color="text-blue-500" />
-                <EventSummary icon={<CheckCircle2 size={16} />} label="Tasks Completed" count="18" color="text-green-500" />
-             </div>
-           </div>
+          <div className="bg-white border border-slate-100 rounded-xl p-6 space-y-6 shadow-sm">
+            <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">Weekly Summary</h3>
+            <div className="space-y-4">
+              <EventSummary icon={<Clock size={16} />} label="Filing Deadlines" count="4" color="text-red-500" />
+              <EventSummary icon={<Briefcase size={16} />} label="Court Appearances" count="2" color="text-blue-500" />
+              <EventSummary icon={<CheckCircle2 size={16} />} label="Tasks Completed" count="18" color="text-green-500" />
+            </div>
+          </div>
         </div>
       </div>
     </div>

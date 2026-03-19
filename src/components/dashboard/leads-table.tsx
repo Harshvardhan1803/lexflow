@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { 
-  Search, 
-  MoreHorizontal, 
-  Mail, 
-  Phone, 
+import {
+  Search,
+  MoreHorizontal,
+  Mail,
+  Phone,
   ExternalLink,
   ArrowUpDown,
   Sparkles,
@@ -60,16 +60,16 @@ export function LeadsTable({ leads = [], isLoading = false }: { leads?: Lead[], 
     // Map database 'case' status to UI 'Converted' status, and 'lead' to 'New'
     const dbStatus = lead.status as any;
     const uiStatus = dbStatus === "case" ? "Converted" : (dbStatus === "lead" ? "New" : dbStatus);
-    
-    const matchesSearch = lead.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                          (lead.email && lead.email.toLowerCase().includes(searchTerm.toLowerCase()));
+
+    const matchesSearch = lead.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (lead.email && lead.email.toLowerCase().includes(searchTerm.toLowerCase()));
     const matchesStatus = activeStatus === "All" || uiStatus === activeStatus;
     return matchesSearch && matchesStatus;
   });
 
   if (isLoading) {
     return (
-      <div className="w-full h-64 flex items-center justify-center bg-white border border-slate-100 rounded-2xl">
+      <div className="w-full h-64 flex items-center justify-center bg-white border border-slate-100 rounded-xl">
         <div className="flex flex-col items-center gap-4">
           <div className="w-10 h-10 border-4 border-accent/20 border-t-accent rounded-full animate-spin" />
           <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">Loading Leads...</p>
@@ -84,24 +84,24 @@ export function LeadsTable({ leads = [], isLoading = false }: { leads?: Lead[], 
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="relative flex-1 max-w-md group">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-accent transition-colors" size={18} />
-          <input 
-            type="text" 
+          <input
+            type="text"
             placeholder="Search leads by name or email..."
             className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-100 rounded-xl outline-none focus:ring-2 focus:ring-accent/10 focus:border-accent transition-all text-sm font-medium"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        
+
         <div className="flex items-center gap-2 overflow-x-auto pb-2 md:pb-0 scrollbar-hide">
-            {["All", "New", "Screening", "Qualified", "Disqualified", "Converted"].map((status) => (
+          {["All", "New", "Screening", "Qualified", "Disqualified", "Converted"].map((status) => (
             <button
               key={status}
               onClick={() => setActiveStatus(status as LeadStatus | "All")}
               className={cn(
                 "px-4 py-2 rounded-lg text-xs font-bold transition-all whitespace-nowrap border",
-                activeStatus === status 
-                  ? "bg-accent text-white border-accent shadow-lg shadow-accent/20" 
+                activeStatus === status
+                  ? "bg-accent text-white border-accent shadow-lg shadow-accent/20"
                   : "bg-white text-slate-500 border-slate-100 hover:border-accent/30 hover:text-accent"
               )}
             >
@@ -112,7 +112,7 @@ export function LeadsTable({ leads = [], isLoading = false }: { leads?: Lead[], 
       </div>
 
       {/* Table */}
-      <div className="bg-white border border-slate-100 rounded-2xl overflow-hidden shadow-sm">
+      <div className="bg-white border border-slate-100 rounded-xl overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
@@ -131,12 +131,12 @@ export function LeadsTable({ leads = [], isLoading = false }: { leads?: Lead[], 
             <tbody className="divide-y divide-slate-50">
               <AnimatePresence mode="popLayout">
                 {filteredLeads.map((lead) => (
-                  <motion.tr 
+                  <motion.tr
                     layout
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    key={lead.id} 
+                    key={lead.id}
                     className="hover:bg-slate-50/50 transition-colors group"
                   >
                     <td className="px-6 py-4">
@@ -163,31 +163,31 @@ export function LeadsTable({ leads = [], isLoading = false }: { leads?: Lead[], 
                     </td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button 
+                        <button
                           onClick={() => setSelectedLeadForDraft(lead)}
-                          className="p-2 text-accent hover:bg-brand-soft rounded-lg transition-all" 
+                          className="p-2 text-accent hover:bg-brand-soft rounded-lg transition-all"
                           title="AI Draft Response"
                         >
                           <Sparkles size={16} />
                         </button>
-                        <button 
+                        <button
                           onClick={() => setSelectedLeadForHistory(lead)}
-                          className="p-2 text-slate-400 hover:text-accent hover:bg-slate-50 rounded-lg transition-all" 
+                          className="p-2 text-slate-400 hover:text-accent hover:bg-slate-50 rounded-lg transition-all"
                           title="View Case History"
                         >
                           <Clock size={16} />
                         </button>
-                        <Link 
-                          href={`/portal/${lead.id}`} 
-                          className="p-2 text-slate-400 hover:text-accent hover:bg-brand-soft rounded-lg transition-all" 
+                        <Link
+                          href={`/portal/${lead.id}`}
+                          className="p-2 text-slate-400 hover:text-accent hover:bg-brand-soft rounded-lg transition-all"
                           title="View Client Portal"
                         >
                           <ExternalLink size={16} />
                         </Link>
                         {lead.status !== ("case" as any) && (
-                          <button 
+                          <button
                             onClick={() => handleStatusUpdate(lead.id, "Converted")}
-                            className="p-2 text-slate-400 hover:text-green-500 hover:bg-green-50 rounded-lg transition-all" 
+                            className="p-2 text-slate-400 hover:text-green-500 hover:bg-green-50 rounded-lg transition-all"
                             title="Convert to Case"
                           >
                             <Briefcase size={16} />
@@ -204,7 +204,7 @@ export function LeadsTable({ leads = [], isLoading = false }: { leads?: Lead[], 
             </tbody>
           </table>
         </div>
-        
+
         {filteredLeads.length === 0 && (
           <div className="py-20 flex flex-col items-center justify-center text-slate-400 gap-3">
             <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center border border-slate-100">
@@ -216,7 +216,7 @@ export function LeadsTable({ leads = [], isLoading = false }: { leads?: Lead[], 
       </div>
 
       {selectedLeadForDraft && (
-        <AIDraftModal 
+        <AIDraftModal
           isOpen={!!selectedLeadForDraft}
           onClose={() => setSelectedLeadForDraft(null)}
           clientInfo={{
@@ -228,7 +228,7 @@ export function LeadsTable({ leads = [], isLoading = false }: { leads?: Lead[], 
       )}
 
       {selectedLeadForHistory && (
-        <CaseNotesDrawer 
+        <CaseNotesDrawer
           isOpen={!!selectedLeadForHistory}
           onClose={() => setSelectedLeadForHistory(null)}
           leadId={selectedLeadForHistory.id}

@@ -20,12 +20,12 @@ export default function NotFound() {
           transition={{ duration: 0.5 }}
           className="mb-12 relative inline-block"
         >
-          <div className="w-32 h-32 bg-brand-soft rounded-3xl flex items-center justify-center text-accent relative z-10">
+          <div className="w-32 h-32 bg-brand-soft rounded-xl flex items-center justify-center text-accent relative z-10">
             <ShieldAlert size={64} strokeWidth={1.5} />
           </div>
           {/* Animated rings */}
-          <div className="absolute inset-0 border-2 border-accent/20 rounded-3xl animate-ping scale-110" />
-          <div className="absolute inset-0 border border-accent/10 rounded-3xl animate-pulse scale-125" />
+          <div className="absolute inset-0 border-2 border-accent/20 rounded-xl animate-ping scale-110" />
+          <div className="absolute inset-0 border border-accent/10 rounded-xl animate-pulse scale-125" />
         </motion.div>
 
         <motion.div
@@ -45,13 +45,13 @@ export default function NotFound() {
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
             <Link href="/">
-              <button className="bg-primary text-white px-8 py-4 rounded-2xl font-bold flex items-center gap-3 hover:bg-accent transition-all hover:scale-105 active:scale-95 shadow-xl shadow-primary/10">
+              <button className="bg-primary text-white px-8 py-4 rounded-xl font-bold flex items-center gap-3 hover:bg-accent transition-all hover:scale-105 active:scale-95 shadow-xl shadow-primary/10">
                 <ArrowLeft size={20} />
                 Back to Home
               </button>
             </Link>
             <Link href="/#features">
-              <button className="bg-white border border-slate-200 text-slate-600 px-8 py-4 rounded-2xl font-bold hover:bg-slate-50 transition-all active:scale-95 flex items-center gap-2">
+              <button className="bg-white border border-slate-200 text-slate-600 px-8 py-4 rounded-xl font-bold hover:bg-slate-50 transition-all active:scale-95 flex items-center gap-2">
                 <Search size={18} />
                 Search Features
               </button>

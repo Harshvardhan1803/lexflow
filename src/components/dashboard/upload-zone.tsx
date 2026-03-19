@@ -26,7 +26,7 @@ export function UploadZone({ onFileSelect }: UploadZoneProps) {
     e.preventDefault();
     e.stopPropagation();
     setIsDragging(false);
-    
+
     const files = e.dataTransfer.files;
     if (files && files.length > 0) {
       onFileSelect(files[0]);
@@ -41,9 +41,9 @@ export function UploadZone({ onFileSelect }: UploadZoneProps) {
         onDragLeave={handleDrag}
         onDrop={handleDrop}
         className={cn(
-          "relative border-2 border-dashed rounded-3xl p-12 transition-all duration-500 overflow-hidden group",
-          isDragging 
-            ? "border-accent bg-accent/5 scale-[1.02]" 
+          "relative border-2 border-dashed rounded-xl p-12 transition-all duration-500 overflow-hidden group",
+          isDragging
+            ? "border-accent bg-accent/5 scale-[1.02]"
             : "border-slate-200 bg-white hover:border-accent/40"
         )}
       >
@@ -53,7 +53,7 @@ export function UploadZone({ onFileSelect }: UploadZoneProps) {
 
         <div className="relative z-10 flex flex-col items-center text-center">
           <div className={cn(
-            "w-20 h-20 rounded-2xl flex items-center justify-center mb-6 transition-all duration-500",
+            "w-20 h-20 rounded-xl flex items-center justify-center mb-6 transition-all duration-500",
             isDragging ? "bg-accent text-white rotate-12" : "bg-slate-50 text-slate-400 group-hover:bg-brand-soft group-hover:text-accent"
           )}>
             <Upload size={32} strokeWidth={1.5} />
@@ -66,19 +66,19 @@ export function UploadZone({ onFileSelect }: UploadZoneProps) {
             Upload depositions, motions, or evidence. Our legal engine will extract key entities and patterns automatically.
           </p>
 
-          <input 
-            type="file" 
-            id="file-upload" 
-            className="hidden" 
+          <input
+            type="file"
+            id="file-upload"
+            className="hidden"
             onChange={(e) => e.target.files && onFileSelect(e.target.files[0])}
           />
-          <label 
+          <label
             htmlFor="file-upload"
             className="px-8 py-3.5 bg-accent text-white rounded-xl font-bold shadow-lg shadow-accent/20 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer inline-flex items-center gap-2"
           >
             Select Document
           </label>
-          
+
           <div className="mt-8 flex items-center gap-6">
             <Feature icon={<ShieldCheck size={14} />} text="Highly Secure" />
             <Feature icon={<Cpu size={14} />} text="Claude 3.5 Powered" />

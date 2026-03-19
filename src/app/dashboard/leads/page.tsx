@@ -19,7 +19,7 @@ export default function LeadsPage() {
       if (res.ok) {
         const json = await res.json();
         const data = json.data || [];
-        
+
         // Map DB data to UI data and filter only for 'lead' status
         const mappedLeads: Lead[] = data
           .filter((item: any) => item.status === 'lead') // Only show leads on the intake page
@@ -74,12 +74,12 @@ export default function LeadsPage() {
             Manage potential clients and coordinate with your AI Screening Bot.
           </p>
         </div>
-        
+
         <div className="flex items-center gap-3">
           <button className="p-2.5 rounded-xl bg-white border border-slate-100 text-slate-500 hover:text-accent hover:border-accent/30 transition-all flex items-center gap-2 text-sm font-bold shadow-sm">
             <Download size={18} /> Export
           </button>
-          <button 
+          <button
             onClick={() => setIsModalOpen(true)}
             className="px-6 py-3 bg-accent text-white rounded-xl font-bold flex items-center gap-2 shadow-lg shadow-accent/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
           >
@@ -90,20 +90,20 @@ export default function LeadsPage() {
 
       {/* Stats Quick Overview */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <LeadStatCard 
-          label="Total Active Leads" 
-          value={totalLeads.toString()} 
-          increase={totalLeads > 0 ? `+${totalLeads}` : "0"} 
+        <LeadStatCard
+          label="Total Active Leads"
+          value={totalLeads.toString()}
+          increase={totalLeads > 0 ? `+${totalLeads}` : "0"}
           increaseLabel="Live system"
         />
-        <LeadStatCard 
-          label="Conversion Rate" 
-          value={`${conversionRate}%`} 
+        <LeadStatCard
+          label="Conversion Rate"
+          value={`${conversionRate}%`}
           increaseLabel="from database"
         />
-        <LeadStatCard 
-          label="AI Screening Queue" 
-          value={newLeads.toString()} 
+        <LeadStatCard
+          label="AI Screening Queue"
+          value={newLeads.toString()}
           isWarning={newLeads > 5}
           increaseLabel={newLeads > 0 ? "Needs attention" : "Queue clear"}
         />
@@ -115,9 +115,9 @@ export default function LeadsPage() {
       </div>
 
       {/* Modals */}
-      <NewLeadModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
+      <NewLeadModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
         onSuccess={fetchLeads}
       />
     </div>
@@ -132,7 +132,7 @@ function LeadStatCard({ label, value, increase, increaseLabel, isWarning }: {
   isWarning?: boolean;
 }) {
   return (
-    <div className="bg-white border border-slate-100 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow group">
+    <div className="bg-white border border-slate-100 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow group">
       <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">{label}</p>
       <div className="flex items-end justify-between">
         <h4 className="text-3xl font-display font-bold text-slate-900 leading-none">{value}</h4>

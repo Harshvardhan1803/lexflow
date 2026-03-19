@@ -38,7 +38,7 @@ export function SummarizerUpload({ onSummaryGenerated }: SummarizerUploadProps) 
   const handleProcess = async () => {
     if (!file) return;
     setIsProcessing(true);
-    
+
     const formData = new FormData();
     formData.append("file", file);
 
@@ -63,20 +63,20 @@ export function SummarizerUpload({ onSummaryGenerated }: SummarizerUploadProps) 
 
   return (
     <div className="w-full max-w-2xl mx-auto">
-      <div 
+      <div
         onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
         onDragLeave={() => setIsDragging(false)}
         onDrop={onDrop}
         className={cn(
-          "relative border-2 border-dashed rounded-2xl p-6 transition-all duration-500 overflow-hidden",
+          "relative border-2 border-dashed rounded-xl p-6 transition-all duration-500 overflow-hidden",
           isDragging ? "border-accent bg-accent/5 scale-[1.02]" : "border-slate-100 bg-white",
           file ? "border-green-500/30 bg-green-50/10" : "hover:border-accent/30 hover:bg-slate-50/50"
         )}
       >
-        <input 
-          type="file" 
+        <input
+          type="file"
           id="doc-upload"
-          className="hidden" 
+          className="hidden"
           accept=".pdf"
           onChange={handleFileSelect}
         />
@@ -95,7 +95,7 @@ export function SummarizerUpload({ onSummaryGenerated }: SummarizerUploadProps) 
               <p className="text-[10px] text-slate-400 font-medium max-w-xs mx-auto text-balance">
                 Drag and drop your PDF case files here to begin AI analysis.
               </p>
-              <label 
+              <label
                 htmlFor="doc-upload"
                 className="inline-block mt-2 px-4 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-full text-[8px] font-bold cursor-pointer transition-colors"
               >
@@ -104,10 +104,10 @@ export function SummarizerUpload({ onSummaryGenerated }: SummarizerUploadProps) 
             </div>
           ) : (
             <div className="space-y-4">
-              <div className="flex items-center gap-3 px-4 py-2 bg-white border border-green-500/20 rounded-2xl shadow-sm">
+              <div className="flex items-center gap-3 px-4 py-2 bg-white border border-green-500/20 rounded-xl shadow-sm">
                 <FileText className="text-green-500" size={16} />
                 <p className="text-sm font-bold text-slate-700 truncate max-w-[200px]">{file.name}</p>
-                <button 
+                <button
                   onClick={() => setFile(null)}
                   className="p-1 hover:bg-slate-50 rounded-full transition-colors"
                 >
@@ -116,9 +116,9 @@ export function SummarizerUpload({ onSummaryGenerated }: SummarizerUploadProps) 
               </div>
 
               {!isProcessing ? (
-                <button 
+                <button
                   onClick={handleProcess}
-                  className="w-full px-10 py-4 bg-slate-900 text-white rounded-2xl font-bold flex items-center justify-center gap-3 hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/10"
+                  className="w-full px-10 py-4 bg-slate-900 text-white rounded-xl font-bold flex items-center justify-center gap-3 hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/10"
                 >
                   <Sparkles size={18} className="text-accent" /> Analyze Document
                 </button>
@@ -132,7 +132,7 @@ export function SummarizerUpload({ onSummaryGenerated }: SummarizerUploadProps) 
                     </div>
                   </div>
                   <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                    <motion.div 
+                    <motion.div
                       initial={{ width: 0 }}
                       animate={{ width: "95%" }}
                       transition={{ duration: 3, ease: "easeInOut" }}
@@ -151,10 +151,10 @@ export function SummarizerUpload({ onSummaryGenerated }: SummarizerUploadProps) 
       </div>
 
       {error && (
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mt-6 p-4 bg-red-50 border border-red-100 rounded-2xl flex items-center gap-3 text-red-600 text-xs font-bold"
+          className="mt-6 p-4 bg-red-50 border border-red-100 rounded-xl flex items-center gap-3 text-red-600 text-xs font-bold"
         >
           <AlertCircle size={16} /> {error}
         </motion.div>
@@ -165,19 +165,19 @@ export function SummarizerUpload({ onSummaryGenerated }: SummarizerUploadProps) 
 
 function X({ size, className }: { size: number, className?: string }) {
   return (
-    <svg 
-      xmlns="http://www.w3.org/2000/svg" 
-      width={size} 
-      height={size} 
-      viewBox="0 0 24 24" 
-      fill="none" 
-      stroke="currentColor" 
-      strokeWidth="2" 
-      strokeLinecap="round" 
-      strokeLinejoin="round" 
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
       className={className}
     >
-      <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
+      <path d="M18 6 6 18" /><path d="m6 6 12 12" />
     </svg>
   );
 }

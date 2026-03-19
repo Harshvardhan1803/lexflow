@@ -2,13 +2,13 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  X, 
-  Sparkles, 
-  Send, 
-  Copy, 
-  Check, 
-  Loader2, 
+import {
+  X,
+  Sparkles,
+  Send,
+  Copy,
+  Check,
+  Loader2,
   FileText,
   Mail,
   AlertCircle
@@ -106,7 +106,7 @@ export function AIDraftModal({ isOpen, onClose, clientInfo }: AIDraftModalProps)
             onClick={onClose}
             className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
           />
-          
+
           <motion.div
             initial={{ scale: 0.9, opacity: 0, y: 20 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
@@ -116,7 +116,7 @@ export function AIDraftModal({ isOpen, onClose, clientInfo }: AIDraftModalProps)
             {/* Header */}
             <div className="p-8 border-b border-slate-50 flex items-center justify-between bg-slate-50/50">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-accent rounded-2xl flex items-center justify-center shadow-lg shadow-accent/20">
+                <div className="w-12 h-12 bg-accent rounded-xl flex items-center justify-center shadow-lg shadow-accent/20">
                   <Sparkles className="text-white" size={24} />
                 </div>
                 <div>
@@ -124,7 +124,7 @@ export function AIDraftModal({ isOpen, onClose, clientInfo }: AIDraftModalProps)
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Powered by LexFlow AI Core</p>
                 </div>
               </div>
-              <button 
+              <button
                 onClick={onClose}
                 className="p-2 hover:bg-slate-100 rounded-full text-slate-400 transition-colors"
               >
@@ -135,7 +135,7 @@ export function AIDraftModal({ isOpen, onClose, clientInfo }: AIDraftModalProps)
             <div className="flex-1 overflow-y-auto p-8 space-y-8">
               {/* Settings Section */}
               {!generatedDraft && (
-                <motion.div 
+                <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   className="space-y-6"
@@ -143,7 +143,7 @@ export function AIDraftModal({ isOpen, onClose, clientInfo }: AIDraftModalProps)
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Draft Type</label>
-                      <select 
+                      <select
                         className="w-full h-12 px-4 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-accent/10 focus:border-accent transition-all cursor-pointer"
                         value={draftType}
                         onChange={(e) => setDraftType(e.target.value)}
@@ -163,18 +163,18 @@ export function AIDraftModal({ isOpen, onClose, clientInfo }: AIDraftModalProps)
 
                   <div className="space-y-2">
                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Brief Note (Optional)</label>
-                    <textarea 
+                    <textarea
                       placeholder="e.g. Next hearing is Jun 15, need to discuss insurance offer."
                       className="w-full h-32 px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-accent/10 focus:border-accent transition-all resize-none"
                       value={briefNote}
                       onChange={(e) => setBriefNote(e.target.value)}
                     />
                   </div>
-                  
-                  <button 
+
+                  <button
                     onClick={handleGenerate}
                     disabled={isGenerating}
-                    className="w-full py-4 bg-slate-900 text-white rounded-2xl font-bold flex items-center justify-center gap-3 hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/10 disabled:opacity-50 disabled:cursor-not-allowed group"
+                    className="w-full py-4 bg-slate-900 text-white rounded-xl font-bold flex items-center justify-center gap-3 hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/10 disabled:opacity-50 disabled:cursor-not-allowed group"
                   >
                     {isGenerating ? (
                       <Loader2 className="animate-spin" size={20} />
@@ -188,7 +188,7 @@ export function AIDraftModal({ isOpen, onClose, clientInfo }: AIDraftModalProps)
 
               {/* Review Section */}
               {generatedDraft && (
-                <motion.div 
+                <motion.div
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
                   className="space-y-6"
@@ -198,14 +198,14 @@ export function AIDraftModal({ isOpen, onClose, clientInfo }: AIDraftModalProps)
                       <Mail size={16} className="text-accent" /> Review Generated Draft
                     </h3>
                     <div className="flex gap-2">
-                      <button 
+                      <button
                         onClick={handleCopy}
                         className="p-2 bg-slate-50 text-slate-500 hover:text-accent rounded-lg border border-slate-100 transition-all flex items-center gap-2 text-xs font-bold"
                       >
                         {isCopied ? <Check size={14} /> : <Copy size={14} />}
                         {isCopied ? "Copied!" : "Copy"}
                       </button>
-                      <button 
+                      <button
                         onClick={() => setGeneratedDraft("")}
                         className="p-2 bg-slate-50 text-slate-500 hover:text-slate-900 rounded-lg border border-slate-100 transition-all text-xs font-bold"
                       >
@@ -215,7 +215,7 @@ export function AIDraftModal({ isOpen, onClose, clientInfo }: AIDraftModalProps)
                   </div>
 
                   <div className="p-6 bg-slate-50 border border-slate-100 rounded-xl relative group">
-                    <textarea 
+                    <textarea
                       className="w-full min-h-[400px] bg-transparent text-sm font-medium leading-relaxed outline-none resize-none border-none p-0"
                       value={generatedDraft}
                       onChange={(e) => setGeneratedDraft(e.target.value)}
@@ -223,16 +223,16 @@ export function AIDraftModal({ isOpen, onClose, clientInfo }: AIDraftModalProps)
                   </div>
 
                   <div className="flex items-center gap-4">
-                     <button 
+                    <button
                       onClick={handleSaveAsNote}
                       disabled={isSaving}
-                      className="flex-1 py-4 bg-slate-100 text-slate-600 rounded-2xl font-bold hover:bg-slate-200 transition-all disabled:opacity-50"
+                      className="flex-1 py-4 bg-slate-100 text-slate-600 rounded-xl font-bold hover:bg-slate-200 transition-all disabled:opacity-50"
                     >
                       {isSaving ? "Saving..." : "Save as Note"}
                     </button>
-                    <button 
+                    <button
                       onClick={() => alert("Email feature coming soon in pro version!")}
-                      className="flex-1 py-4 bg-accent text-white rounded-2xl font-bold flex items-center justify-center gap-2 hover:scale-[1.02] shadow-lg shadow-accent/20 transition-all"
+                      className="flex-1 py-4 bg-accent text-white rounded-xl font-bold flex items-center justify-center gap-2 hover:scale-[1.02] shadow-lg shadow-accent/20 transition-all"
                     >
                       <Send size={18} /> Send to Client
                     </button>
@@ -243,9 +243,9 @@ export function AIDraftModal({ isOpen, onClose, clientInfo }: AIDraftModalProps)
 
             {/* Footer */}
             <div className="p-6 bg-slate-50/50 border-t border-slate-50 flex items-center justify-center">
-               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                 <AlertCircle size={10} /> AI can make mistakes. Please review before sending.
-               </p>
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                <AlertCircle size={10} /> AI can make mistakes. Please review before sending.
+              </p>
             </div>
           </motion.div>
         </div>

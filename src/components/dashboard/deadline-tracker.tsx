@@ -2,11 +2,11 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  Calendar, 
-  Clock, 
-  CheckCircle2, 
-  AlertCircle, 
+import {
+  Calendar,
+  Clock,
+  CheckCircle2,
+  AlertCircle,
   ChevronRight,
   MoreVertical,
   Plus
@@ -78,9 +78,9 @@ export function DeadlineTracker({ leadId }: DeadlineTrackerProps) {
           <Calendar size={16} className="text-accent" /> Upcoming Deadlines
         </h3>
         {deadlines.length > 0 && (
-           <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-             {deadlines.filter(d => d.status === "pending").length} Pending
-           </span>
+          <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+            {deadlines.filter(d => d.status === "pending").length} Pending
+          </span>
         )}
       </div>
 
@@ -92,29 +92,29 @@ export function DeadlineTracker({ leadId }: DeadlineTrackerProps) {
             const isToday = date.toDateString() === new Date().toDateString();
 
             return (
-              <motion.div 
+              <motion.div
                 key={deadline.id}
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: idx * 0.05 }}
                 className={cn(
-                  "group flex items-center gap-4 p-3 rounded-2xl border transition-all",
-                  deadline.status === "completed" 
-                    ? "bg-slate-50 border-slate-50 opacity-60" 
-                    : isOverdue 
-                      ? "bg-red-50 border-red-100" 
+                  "group flex items-center gap-4 p-3 rounded-xl border transition-all",
+                  deadline.status === "completed"
+                    ? "bg-slate-50 border-slate-50 opacity-60"
+                    : isOverdue
+                      ? "bg-red-50 border-red-100"
                       : "bg-white border-slate-100 hover:border-accent/20"
                 )}
               >
                 <div className="shrink-0">
-                  <button 
+                  <button
                     onClick={() => toggleStatus(deadline.id, deadline.status)}
                     className={cn(
                       "w-6 h-6 rounded-full flex items-center justify-center transition-all border-2",
-                      deadline.status === "completed" 
-                        ? "bg-green-500 border-green-500 text-white" 
-                        : isOverdue 
-                          ? "bg-white border-red-200 text-red-500" 
+                      deadline.status === "completed"
+                        ? "bg-green-500 border-green-500 text-white"
+                        : isOverdue
+                          ? "bg-white border-red-200 text-red-500"
                           : "bg-white border-slate-200 text-slate-300 hover:border-accent"
                     )}
                   >
@@ -147,11 +147,11 @@ export function DeadlineTracker({ leadId }: DeadlineTrackerProps) {
             );
           })
         ) : (
-          <div className="p-8 border-2 border-dashed border-slate-100 rounded-3xl text-center space-y-3">
-             <div className="w-10 h-10 bg-slate-50 rounded-full flex items-center justify-center mx-auto text-slate-300">
-                <Calendar size={18} />
-             </div>
-             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">No deadlines set</p>
+          <div className="p-8 border-2 border-dashed border-slate-100 rounded-xl text-center space-y-3">
+            <div className="w-10 h-10 bg-slate-50 rounded-full flex items-center justify-center mx-auto text-slate-300">
+              <Calendar size={18} />
+            </div>
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">No deadlines set</p>
           </div>
         )}
       </div>

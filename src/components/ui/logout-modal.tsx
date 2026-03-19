@@ -22,14 +22,14 @@ export function LogoutModal({ isOpen, onClose, onConfirm }: LogoutModalProps) {
         initial={{ opacity: 0, scale: 0.9, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ duration: 0.3, ease: "easeOut" }}
-        className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-100 focus:outline-none"
+        className="relative w-full max-w-md bg-white rounded-xl shadow-2xl overflow-hidden border border-slate-100 focus:outline-none"
       >
         <div className="p-8">
           <div className="flex justify-between items-start mb-6">
-            <div className="w-12 h-12 bg-red-50 rounded-2xl flex items-center justify-center text-red-500">
+            <div className="w-12 h-12 bg-red-50 rounded-xl flex items-center justify-center text-red-500">
               <LogOut size={24} />
             </div>
-            <button 
+            <button
               onClick={onClose}
               className="p-2 hover:bg-slate-100 rounded-xl transition-colors text-slate-400 hover:text-slate-600"
             >
@@ -47,19 +47,19 @@ export function LogoutModal({ isOpen, onClose, onConfirm }: LogoutModalProps) {
           <div className="flex gap-4">
             <button
               onClick={onClose}
-              className="flex-1 py-4 px-6 rounded-2xl font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-all active:scale-95"
+              className="flex-1 py-4 px-6 rounded-xl font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-all active:scale-95"
             >
               Cancel
             </button>
             <button
               onClick={onConfirm}
-              className="flex-1 py-4 px-6 rounded-2xl font-bold text-white bg-red-500 hover:bg-red-600 shadow-lg shadow-red-500/20 transition-all active:scale-95"
+              className="flex-1 py-4 px-6 rounded-xl font-bold text-white bg-red-500 hover:bg-red-600 shadow-lg shadow-red-500/20 transition-all active:scale-95"
             >
               Yes, Sign Out
             </button>
           </div>
         </div>
-        
+
         {/* Bottom Accent */}
         <div className="h-1.5 w-full bg-gradient-to-r from-red-400 to-red-600 opacity-20" />
       </motion.div>

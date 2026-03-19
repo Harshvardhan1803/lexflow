@@ -1,11 +1,11 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { 
-  Users, 
-  Calendar, 
-  AlertTriangle, 
-  FileText, 
+import {
+  Users,
+  Calendar,
+  AlertTriangle,
+  FileText,
   ArrowRight,
   ShieldCheck,
   CheckCheck,
@@ -42,7 +42,7 @@ export function SummaryResults({ data, onReset }: SummaryResultsProps) {
   };
 
   return (
-    <motion.div 
+    <motion.div
       variants={container}
       initial="hidden"
       animate="show"
@@ -51,13 +51,13 @@ export function SummaryResults({ data, onReset }: SummaryResultsProps) {
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-display font-bold text-slate-900">Analysis Results</h2>
         <div className="flex gap-2">
-          <button 
+          <button
             onClick={() => window.print()}
             className="p-2 border border-slate-100 rounded-xl hover:bg-slate-50 transition-colors text-slate-500"
           >
             <Download size={18} />
           </button>
-          <button 
+          <button
             onClick={onReset}
             className="px-6 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-bold transition-colors"
           >
@@ -67,13 +67,13 @@ export function SummaryResults({ data, onReset }: SummaryResultsProps) {
       </div>
 
       {/* Hero Summary */}
-      <motion.div variants={item} className="bg-slate-900 text-white rounded-2xl p-6 md:p-10 relative overflow-hidden group">
+      <motion.div variants={item} className="bg-slate-900 text-white rounded-xl p-6 md:p-10 relative overflow-hidden group">
         <div className="relative z-10 space-y-4">
           <div className="flex items-center gap-3">
-             <div className="w-8 h-8 bg-accent rounded-lg flex items-center justify-center text-white">
-                <FileText size={16} />
-             </div>
-             <span className="text-[9px] font-black uppercase tracking-widest text-accent">Executive Summary</span>
+            <div className="w-8 h-8 bg-accent rounded-lg flex items-center justify-center text-white">
+              <FileText size={16} />
+            </div>
+            <span className="text-[9px] font-black uppercase tracking-widest text-accent">Executive Summary</span>
           </div>
           <p className="text-base md:text-lg font-medium leading-relaxed max-w-4xl text-slate-200">
             {data.executive_summary}
@@ -84,7 +84,7 @@ export function SummaryResults({ data, onReset }: SummaryResultsProps) {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Parties & Entities */}
-        <motion.div variants={item} className="bg-white border border-slate-100 rounded-2xl p-6 space-y-4 shadow-sm">
+        <motion.div variants={item} className="bg-white border border-slate-100 rounded-xl p-6 space-y-4 shadow-sm">
           <h3 className="text-xs font-bold text-slate-900 border-l-4 border-accent pl-3 flex items-center gap-2">
             <Users size={14} /> Key Parties & Entities
           </h3>
@@ -166,16 +166,16 @@ export function SummaryResults({ data, onReset }: SummaryResultsProps) {
 
       <motion.div variants={item} className="p-8 bg-slate-50 border border-slate-100 rounded-4xl flex items-center justify-between">
         <div className="flex items-center gap-4">
-           <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-slate-400 border border-slate-100">
-              <Share2 size={24} />
-           </div>
-           <div>
-              <p className="text-sm font-bold text-slate-900">Share Report</p>
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Generate secure link for client portal</p>
-           </div>
+          <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-slate-400 border border-slate-100">
+            <Share2 size={24} />
+          </div>
+          <div>
+            <p className="text-sm font-bold text-slate-900">Share Report</p>
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Generate secure link for client portal</p>
+          </div>
         </div>
-        <button className="px-8 py-3 bg-white border border-slate-200 text-slate-900 rounded-2xl font-bold hover:bg-slate-100 transition-colors shadow-sm">
-           Generate Share Link
+        <button className="px-8 py-3 bg-white border border-slate-200 text-slate-900 rounded-xl font-bold hover:bg-slate-100 transition-colors shadow-sm">
+          Generate Share Link
         </button>
       </motion.div>
     </motion.div>

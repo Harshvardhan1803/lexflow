@@ -2,11 +2,11 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  X, 
-  Calendar, 
-  Sparkles, 
-  CheckCircle2, 
+import {
+  X,
+  Calendar,
+  Sparkles,
+  CheckCircle2,
   Loader2,
   Scale,
   Gavel,
@@ -76,7 +76,7 @@ export function AddDeadlineModal({ isOpen, onClose, leadId, onSuccess }: AddDead
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            className="relative w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden"
+            className="relative w-full max-w-md bg-white rounded-xl shadow-2xl overflow-hidden"
           >
             <div className="p-6 border-b border-slate-50 flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -88,7 +88,7 @@ export function AddDeadlineModal({ isOpen, onClose, leadId, onSuccess }: AddDead
                   <p className="text-[10px] text-slate-400 font-medium lowercase">LexFlow calculates milestones from case rules.</p>
                 </div>
               </div>
-              <button 
+              <button
                 onClick={onClose}
                 className="p-2 hover:bg-slate-50 rounded-full transition-colors text-slate-400"
               >
@@ -107,8 +107,8 @@ export function AddDeadlineModal({ isOpen, onClose, leadId, onSuccess }: AddDead
                       onClick={() => setSelectedType(type.id)}
                       className={cn(
                         "p-3 rounded-xl border-2 transition-all flex flex-col items-start gap-2 text-left group relative",
-                        selectedType === type.id 
-                          ? "border-accent bg-accent/5 ring-4 ring-accent/5 shadow-sm" 
+                        selectedType === type.id
+                          ? "border-accent bg-accent/5 ring-4 ring-accent/5 shadow-sm"
                           : "border-slate-50 bg-white hover:border-slate-100"
                       )}
                     >
@@ -138,8 +138,8 @@ export function AddDeadlineModal({ isOpen, onClose, leadId, onSuccess }: AddDead
                   <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400">
                     <Calendar size={16} />
                   </div>
-                  <input 
-                    type="date" 
+                  <input
+                    type="date"
                     value={anchorDate}
                     onChange={(e) => setAnchorDate(e.target.value)}
                     className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-100 rounded-xl outline-none focus:ring-4 focus:ring-accent/5 focus:border-accent transition-all text-xs font-bold text-slate-700"
