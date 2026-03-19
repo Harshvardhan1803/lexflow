@@ -7,11 +7,15 @@ import {
   Mail, 
   Phone, 
   ExternalLink,
-  ArrowUpDown
+  ArrowUpDown,
+  Sparkles,
+  Clock
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { cn } from "@/utils/utils";
+import { AIDraftModal } from "./ai-draft-modal";
+import { CaseNotesDrawer } from "./case-notes-drawer";
 
 export type LeadStatus = "New" | "Screening" | "Qualified" | "Disqualified" | "Converted";
 
@@ -31,6 +35,8 @@ const mockLeads: Lead[] = [];
 export function LeadsTable({ leads = [], isLoading = false }: { leads?: Lead[], isLoading?: boolean }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeStatus, setActiveStatus] = useState<LeadStatus | "All">("All");
+  const [selectedLeadForDraft, setSelectedLeadForDraft] = useState<Lead | null>(null);
+  const [selectedLeadForHistory, setSelectedLeadForHistory] = useState<Lead | null>(null);
 
   const filteredLeads = leads.filter(lead => {
     const matchesSearch = lead.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
@@ -135,6 +141,20 @@ export function LeadsTable({ leads = [], isLoading = false }: { leads?: Lead[], 
                     </td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button 
+                          onClick={() => setSelectedLeadForDraft(lead)}
+                          className="p-2 text-accent hover:bg-brand-soft rounded-lg transition-all" 
+                          title="AI Draft Response"
+                        >
+                          <Sparkles size={16} />
+                        </button>
+                        <button 
+                          onClick={() => setSelectedLeadForHistory(lead)}
+                          className="p-2 text-slate-400 hover:text-accent hover:bg-slate-50 rounded-lg transition-all" 
+                          title="View Case History"
+                        >
+                          <Clock size={16} />
+                        </button>
                         <Link 
                           href={`/portal/${lead.id}`} 
                           // target="_self"
@@ -164,6 +184,27 @@ export function LeadsTable({ leads = [], isLoading = false }: { leads?: Lead[], 
           </div>
         )}
       </div>
+
+      {selectedLeadForDraft && (
+        <AIDraftModal 
+          isOpen={!!selectedLeadForDraft}
+          onClose={() => setSelectedLeadForDraft(null)}
+          clientInfo={{
+            name: selectedLeadForDraft.name,
+            caseType: selectedLeadForDraft.type,
+            id: selectedLeadForDraft.id
+          }}
+        />
+      )}
+
+      {selectedLeadForHistory && (
+        <CaseNotesDrawer 
+          isOpen={!!selectedLeadForHistory}
+          onClose={() => setSelectedLeadForHistory(null)}
+          leadId={selectedLeadForHistory.id}
+          leadName={selectedLeadForHistory.name}
+        />
+      )}
     </div>
   );
 }
