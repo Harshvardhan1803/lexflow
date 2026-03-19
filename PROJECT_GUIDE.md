@@ -59,6 +59,11 @@ graph LR
 - **Kaha Se View?**: Sidebar -> **Calendar** (`/dashboard/calendar`).
 - **Use**: Saari deadlines aur client meetings ek central view mein dekhne ke liye.
 
+### ⚙️ Firm Settings & AI Config
+- **Kaha Se Manage Karein?**: Sidebar -> **Settings** (Bottom gear icon).
+- **Control Center**: Law Firm profile, AI Model selection (Claude/GPT), aur Auto-Drafting toggles manage karne ke liye.
+- **Code**: `src/app/dashboard/settings/page.tsx`.
+
 ### 🔒 Client Portal (The Transparency)
 - **Kaise Access Karein?**: Leads/Cases table mein **External Link icon** par click karein.
 - **Link Logic**: `src/app/portal/[id]/page.tsx`. Ye portal bina password (token-based) ke client ko case status dikhata hai.
