@@ -4,8 +4,12 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight, Scale, CheckCircle2 } from "lucide-react";
 import { FlowMockup } from "./flow-mockup";
+import { CalendlyModal } from "../ui/calendly-modal";
+import { useState } from "react";
 
 export function Hero() {
+  const [isCalendlyOpen, setIsCalendlyOpen] = useState(false);
+
   return (
     <section className="relative pt-24 pb-16 md:pt-32 md:pb-24 overflow-hidden bg-white">
       {/* Premium Background Elements */}
@@ -48,8 +52,11 @@ export function Hero() {
                   <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
                 </button>
               </Link>
-              <button className="w-full sm:w-auto px-8 py-4 rounded-full text-lg font-bold text-slate-700 border border-slate-200 hover:bg-slate-50 transition-all flex items-center justify-center gap-2 bg-white/50 backdrop-blur-md">
-                View Case Study
+              <button 
+                onClick={() => setIsCalendlyOpen(true)}
+                className="w-full sm:w-auto px-8 py-4 rounded-full text-lg font-bold text-slate-700 border border-slate-200 hover:bg-slate-50 transition-all flex items-center justify-center gap-2 bg-white/50 backdrop-blur-md"
+              >
+                Book Consultation
               </button>
             </div>
 
@@ -79,6 +86,11 @@ export function Hero() {
           </motion.div>
         </div>
       </div>
+
+      <CalendlyModal 
+        isOpen={isCalendlyOpen} 
+        onClose={() => setIsCalendlyOpen(false)} 
+      />
     </section>
   );
 }

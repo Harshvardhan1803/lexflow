@@ -42,6 +42,8 @@ interface SessionData {
   answers: string[];
 }
 
+import { CalendlyModal } from "./calendly-modal";
+
 export function IntakeBot() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -54,6 +56,7 @@ export function IntakeBot() {
     answers: []
   });
   const [isCompleted, setIsCompleted] = useState(false);
+  const [isCalendlyOpen, setIsCalendlyOpen] = useState(false);
 
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -166,7 +169,7 @@ export function IntakeBot() {
   return (
     <>
       {/* Floating Toggle Button */}
-      <div className="fixed bottom-6 right-6 z-[9999]">
+      <div className="fixed bottom-6 right-6 z-9999">
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
@@ -220,7 +223,7 @@ export function IntakeBot() {
             initial={{ opacity: 0, scale: 0.9, y: 20, transformOrigin: "bottom right" }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            className="fixed bottom-24 right-6 z-[9999] w-[380px] h-[550px] bg-white rounded-[2rem] shadow-[-20px_20px_60px_rgba(0,0,0,0.1)] border border-slate-100 flex flex-col overflow-hidden"
+            className="fixed bottom-24 right-6 z-9999 w-[380px] h-[550px] bg-white rounded-4xl shadow-[-20px_20px_60px_rgba(0,0,0,0.1)] border border-slate-100 flex flex-col overflow-hidden"
           >
             {/* Header */}
             <div className="p-6 bg-slate-950 text-white relative">
@@ -306,14 +309,12 @@ export function IntakeBot() {
                   <div className="flex items-center gap-2 text-green-600 font-bold text-sm">
                     <CheckCircle2 size={16} /> Data Logged to CRM
                   </div>
-                  <a
-                    href="https://calendar.google.com/calendar/r/eventedit?text=Legal+Consultation+with+LexFlow&details=Initial+Intake+Follow-up"
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <button
+                    onClick={() => setIsCalendlyOpen(true)}
                     className="w-full py-3 bg-accent text-white rounded-xl font-bold text-center flex items-center justify-center gap-2 shadow-lg shadow-accent/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
                   >
                     <Sparkles size={16} /> Book Consultation Now
-                  </a>
+                  </button>
                   <button
                     onClick={() => setIsOpen(false)}
                     className="text-xs font-black uppercase tracking-widest text-slate-400 hover:text-accent transition-colors underline"
@@ -330,6 +331,11 @@ export function IntakeBot() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      <CalendlyModal 
+        isOpen={isCalendlyOpen} 
+        onClose={() => setIsCalendlyOpen(false)} 
+      />
     </>
   );
 }
