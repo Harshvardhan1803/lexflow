@@ -10,9 +10,13 @@ import {
   MessageSquare, 
   Sparkles,
   Search,
-  Loader2
+  Loader2,
+  Calendar,
+  Plus
 } from "lucide-react";
 import { cn } from "@/utils/utils";
+import { DeadlineTracker } from "./deadline-tracker";
+import { AddDeadlineModal } from "./add-deadline-modal";
 
 interface Note {
   id: string;
@@ -32,6 +36,9 @@ export function CaseNotesDrawer({ isOpen, onClose, leadId, leadName }: CaseNotes
   const [notes, setNotes] = useState<Note[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [activeTab, setActiveTab] = useState<"history" | "deadlines">("history");
+  const [isAddDeadlineOpen, setIsAddDeadlineOpen] = useState(false);
+  const [deadlineRefreshKey, setDeadlineRefreshKey] = useState(0);
 
   const fetchNotes = async () => {
     setIsLoading(true);
@@ -96,60 +103,98 @@ export function CaseNotesDrawer({ isOpen, onClose, leadId, leadName }: CaseNotes
               </button>
             </div>
 
-            {/* Search */}
-            <div className="p-6 pb-0">
-              <div className="relative group">
+            {/* Tabs */}
+            <div className="flex px-6 mt-4">
+               <button 
+                 onClick={() => setActiveTab("history")}
+                 className={cn(
+                   "flex-1 py-3 text-[10px] font-black uppercase tracking-widest border-b-2 transition-all",
+                   activeTab === "history" ? "border-accent text-accent" : "border-transparent text-slate-400"
+                 )}
+               >
+                 Activity History
+               </button>
+               <button 
+                 onClick={() => setActiveTab("deadlines")}
+                 className={cn(
+                   "flex-1 py-3 text-[10px] font-black uppercase tracking-widest border-b-2 transition-all",
+                   activeTab === "deadlines" ? "border-accent text-accent" : "border-transparent text-slate-400"
+                 )}
+               >
+                 Deadline Tracker
+               </button>
+            </div>
+
+            {/* Search / Context Actions */}
+            <div className="p-6 pb-0 flex items-center gap-3">
+              <div className="relative group flex-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-accent transition-colors" size={16} />
                 <input 
                   type="text" 
-                  placeholder="Filter history..."
+                  placeholder={activeTab === "history" ? "Filter history..." : "Search deadlines..."}
                   className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-100 rounded-xl outline-none focus:ring-2 focus:ring-accent/5 focus:border-accent transition-all text-xs font-medium"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
               </div>
+              {activeTab === "deadlines" && (
+                <button 
+                  onClick={() => setIsAddDeadlineOpen(true)}
+                  className="p-2 bg-slate-900 border border-slate-900 text-white rounded-xl hover:bg-slate-800 transition-all shadow-lg shadow-slate-900/10"
+                >
+                  <Plus size={18} />
+                </button>
+              )}
             </div>
 
             {/* List */}
-            <div className="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-hide">
-              {isLoading ? (
-                <div className="h-full flex items-center justify-center">
-                  <Loader2 className="animate-spin text-accent/40" size={32} />
-                </div>
-              ) : filteredNotes.length > 0 ? (
-                filteredNotes.map((note, idx) => (
-                  <div key={note.id} className="relative pl-8 group pb-6">
-                    {/* Timeline elements */}
-                    {idx !== filteredNotes.length - 1 && (
-                      <div className="absolute left-[11px] top-4 bottom-[-24px] w-0.5 bg-slate-50" />
-                    )}
-                    <div className="absolute left-0 top-1 w-6 h-6 rounded-full bg-white border border-slate-100 flex items-center justify-center z-10 group-hover:border-accent transition-colors">
-                      {note.type.includes("AI") ? (
-                        <Sparkles size={10} className="text-accent" />
-                      ) : (
-                        <FileText size={10} className="text-slate-400" />
-                      )}
+            <div className="flex-1 overflow-y-auto p-6 scrollbar-hide">
+              {activeTab === "history" ? (
+                <div className="space-y-6">
+                  {isLoading ? (
+                    <div className="h-full flex items-center justify-center">
+                      <Loader2 className="animate-spin text-accent/40" size={32} />
                     </div>
+                  ) : filteredNotes.length > 0 ? (
+                    filteredNotes.map((note, idx) => (
+                      <div key={note.id} className="relative pl-8 group pb-6">
+                        {/* Timeline elements */}
+                        {idx !== filteredNotes.length - 1 && (
+                          <div className="absolute left-[11px] top-4 bottom-[-24px] w-0.5 bg-slate-50" />
+                        )}
+                        <div className="absolute left-0 top-1 w-6 h-6 rounded-full bg-white border border-slate-100 flex items-center justify-center z-10 group-hover:border-accent transition-colors">
+                          {note.type.includes("AI") ? (
+                            <Sparkles size={10} className="text-accent" />
+                          ) : (
+                            <FileText size={10} className="text-slate-400" />
+                          )}
+                        </div>
 
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">
-                          {note.type} • {new Date(note.date).toLocaleDateString()}
-                        </span>
-                        <Clock size={10} className="text-slate-300" />
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                              {note.type} • {new Date(note.date).toLocaleDateString()}
+                            </span>
+                            <Clock size={10} className="text-slate-300" />
+                          </div>
+                          <div className="p-4 bg-slate-50 border border-slate-50 rounded-2xl group-hover:border-slate-100 transition-colors">
+                            <p className="text-xs font-medium text-slate-600 leading-relaxed whitespace-pre-wrap">
+                              {note.content}
+                            </p>
+                          </div>
+                        </div>
                       </div>
-                      <div className="p-4 bg-slate-50 border border-slate-50 rounded-2xl group-hover:border-slate-100 transition-colors">
-                        <p className="text-xs font-medium text-slate-600 leading-relaxed whitespace-pre-wrap">
-                          {note.content}
-                        </p>
-                      </div>
+                    ))
+                  ) : (
+                    <div className="h-48 flex flex-col items-center justify-center text-slate-400 gap-2">
+                      <History size={24} className="opacity-20" />
+                      <p className="text-[10px] font-black uppercase tracking-widest">No history found</p>
                     </div>
-                  </div>
-                ))
+                  )}
+                </div>
               ) : (
-                <div className="h-48 flex flex-col items-center justify-center text-slate-400 gap-2">
-                  <History size={24} className="opacity-20" />
-                  <p className="text-[10px] font-black uppercase tracking-widest">No history found</p>
+                <div className="animate-in fade-in slide-in-from-right-4 duration-300">
+                  <DeadlineTracker key={deadlineRefreshKey} leadId={Number(leadId)} />
                 </div>
               )}
             </div>
@@ -157,13 +202,20 @@ export function CaseNotesDrawer({ isOpen, onClose, leadId, leadName }: CaseNotes
             {/* Footer Status */}
             <div className="p-6 bg-slate-50/50 border-t border-slate-100 flex items-center justify-between">
                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                 <Clock size={12} className="text-accent" /> Proper Tracking Enabled
+                 <Clock size={12} className="text-accent" /> {activeTab === "history" ? "History Tracking Enabled" : "Compliance Monitoring Active"}
                </span>
                <span className="text-[10px] font-bold text-slate-400">
-                 {filteredNotes.length} Items
+                 {activeTab === "history" ? `${filteredNotes.length} Items` : "Calculated Automagically"}
                </span>
             </div>
           </motion.div>
+
+          <AddDeadlineModal 
+            isOpen={isAddDeadlineOpen}
+            onClose={() => setIsAddDeadlineOpen(false)}
+            leadId={Number(leadId)}
+            onSuccess={() => setDeadlineRefreshKey(prev => prev + 1)}
+          />
         </>
       )}
     </AnimatePresence>
