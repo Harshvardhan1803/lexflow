@@ -17,6 +17,8 @@ export const metadata: Metadata = {
   description: "Automate client intake, case tracking, and legal communication for your law firm with LexFlow AI.",
 };
 
+import { IntakeBot } from "@/components/ui/intake-bot";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -28,6 +30,7 @@ export default function RootLayout({
         className={`${inter.variable} ${outfit.variable} font-sans antialiased`}
       >
         {children}
+        <IntakeBot />
       </body>
     </html>
   );

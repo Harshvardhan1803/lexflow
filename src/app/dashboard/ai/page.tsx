@@ -16,6 +16,15 @@ export default function AIDiscoveryPage() {
   const handleFileSelect = (file: File) => {
     setFileName(file.name);
     setView("processing");
+
+    /**
+     * AI DISCOVERY INTEGRATION (CLAUDE VISION / PDF):
+     * 1. Wrap the file in FormData and send it to the `/api/ai/analyze` route.
+     * 2. On the backend, Claude 3.5 Sonnet (with PDF parsing) reads the file.
+     * 3. Claude returns structured JSON: 
+     *    { summary: "...", entities: [...], strategy: "..." }
+     * 4. Save this data to state to populate the "Results" view dynamically.
+     */
   };
 
   const handleAnalysisComplete = () => {
@@ -139,7 +148,7 @@ export default function AIDiscoveryPage() {
               <div className="p-6 rounded-2xl bg-slate-950 text-white relative overflow-hidden group border border-slate-800 shadow-xl">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-accent/20 blur-3xl opacity-50 group-hover:opacity-100 transition-opacity" />
                 <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 bg-accent rounded-xl flex items-center justify-center flex-shrink-0">
+                  <div className="w-10 h-10 bg-accent rounded-xl flex items-center justify-center shrink-0">
                     <Bot size={20} />
                   </div>
                   <div>
