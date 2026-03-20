@@ -163,7 +163,7 @@ export function LeadsTable({ leads = [], isLoading = false }: { leads?: Lead[], 
                       <StatusBadge status={lead.status === ("case" as any) ? "Converted" : lead.status} />
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="flex items-center justify-end gap-2 transition-opacity">
                         <Tooltip title="AI Draft Response" placement="top" arrow slots={{ transition: Zoom }} slotProps={{ tooltip: { sx: { bgcolor: '#0f172a', fontWeight: 700, borderRadius: '8px' } } }}>
                           <button
                             onClick={() => setSelectedLeadForDraft(lead)}
