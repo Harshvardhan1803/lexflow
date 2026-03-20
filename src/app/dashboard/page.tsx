@@ -212,7 +212,7 @@ function ActivityItem({ firm, action, time, tag }: ActivityItemProps) {
       </div>
       <div className="flex-1">
         <div className="flex items-center justify-between mb-0.5">
-          <span className="text-sm font-bold text-slate-900 tracking-tight">{action}</span>
+          <span className="text-sm font-bold text-slate-900 tracking-tight line-clamp-1 max-w-[400px]">{action}</span>
           <span className="text-[11px] font-bold text-slate-400">{time}</span>
         </div>
         <div className="flex items-center gap-3">

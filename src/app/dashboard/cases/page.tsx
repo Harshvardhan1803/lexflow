@@ -28,8 +28,20 @@ export default function ActiveCasesPage() {
         ]);
 
         if (leadsRes.ok) {
-          const data = await leadsRes.json();
-          const activeCases = (data.data || []).filter((item: any) => item.status === "case");
+          const res = await leadsRes.json();
+          const data = res.data || [];
+          const activeCases = data
+            .filter((item: any) => item.status === "case")
+            .map((item: any) => ({
+              id: item.id.toString(),
+              name: item.name,
+              email: item.email || "No Email",
+              phone: item.phone || "No Phone",
+              source: item.intake_answers?.source || "Website Widget",
+              status: "Converted",
+              date: new Date(item.created_at).toISOString().split('T')[0],
+              type: item.intake_answers?.selected_case_type || "General Intake"
+            }));
           setCases(activeCases);
         }
 

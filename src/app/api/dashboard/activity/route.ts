@@ -6,9 +6,9 @@ export async function GET() {
     // Fetch latest 5 activities (from contacts table)
     // Fetch recent activity from multiple sources for a true dynamic feed
     const [leadsRes, notesRes, messagesRes] = await Promise.all([
-      pool.query("SELECT name as firm, 'New Lead' as action, created_at as time, 'Marketing' as tag FROM contacts ORDER BY created_at DESC LIMIT 3"),
-      pool.query("SELECT c.name as firm, n.content as action, n.created_at as time, 'Case History' as tag FROM notes n JOIN contacts c ON n.contact_id = c.id ORDER BY n.created_at DESC LIMIT 3"),
-      pool.query("SELECT c.name as firm, 'New Message: ' || LEFT(m.content, 20) || '...' as action, m.created_at as time, 'Communication' as tag FROM messages m JOIN contacts c ON m.contact_id = c.id ORDER BY m.created_at DESC LIMIT 3")
+      pool.query("SELECT 'lead-' || id as id, name as firm, 'New Lead' as action, created_at as time, 'Marketing' as tag FROM contacts ORDER BY created_at DESC LIMIT 3"),
+      pool.query("SELECT 'note-' || n.id as id, c.name as firm, 'New Activity: ' || LEFT(n.content, 100) || '...' as action, n.created_at as time, 'Case History' as tag FROM notes n JOIN contacts c ON n.contact_id = c.id ORDER BY n.created_at DESC LIMIT 3"),
+      pool.query("SELECT 'msg-' || m.id as id, c.name as firm, 'New Message: ' || LEFT(m.content, 50) || '...' as action, m.created_at as time, 'Communication' as tag FROM messages m JOIN contacts c ON m.contact_id = c.id ORDER BY m.created_at DESC LIMIT 3")
     ]);
 
     const combinedActivity = [
