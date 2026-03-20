@@ -12,6 +12,7 @@ import {
   ChevronRight,
   Gavel
 } from "lucide-react";
+import Link from "next/link";
 import { cn } from "@/utils/utils";
 import { LexLoader } from "@/components/ui/loader";
 
@@ -107,12 +108,12 @@ export default function DashboardOverview() {
             <h3 className="text-xl font-display font-bold text-slate-900 tracking-tight">
               Recent Case Activity
             </h3>
-            <button className="text-sm font-bold text-accent hover:underline flex items-center gap-1">
-              View All <ChevronRight size={16} />
-            </button>
+            <Link href="/dashboard/leads" className="text-sm font-bold text-accent hover:underline flex items-center gap-1 group">
+              View All <ChevronRight size={16} className="group-hover:translate-x-1 transition-transform" />
+            </Link>
           </div>
 
-          <div className="space-y-6">
+          <div className="space-y-6 max-h-[440px] overflow-y-auto pr-4 scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent">
             {activities.length > 0 ? (
               activities.map((item) => (
                 <ActivityItem
@@ -139,9 +140,12 @@ export default function DashboardOverview() {
             <p className="text-slate-400 text-sm font-medium mb-6 relative z-10">
               Your autonomous screening bot has identified {stats?.totalLeads || 0} high-intent leads total.
             </p>
-            <button className="w-full bg-accent text-white py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98] transition-all relative z-10">
+            <Link
+              href="/dashboard/leads"
+              className="w-full bg-accent text-white py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-brand-soft hover:text-accent hover:scale-[1.02] active:scale-[0.98] transition-all relative z-10 shadow-lg shadow-accent/20"
+            >
               Review Leads <ArrowUpRight size={18} />
-            </button>
+            </Link>
           </div>
 
           <div className="bg-white border border-slate-100 rounded-xl p-8 shadow-sm">
