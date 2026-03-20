@@ -232,55 +232,54 @@ function TabButton({ active, label, icon, onClick }: {
   );
 }
 
-function StatusTimeline({ milestones }: {
-  milestones: Array<{ id: number; title: string; date: string; status: string }>
+import { CaseTimeline, TimelineStep } from "@/components/dashboard/case-timeline";
+
+function StatusTimeline({ milestones }: { 
+  milestones: Array<{ id: number; title: string; date: string; status: string }> 
 }) {
+  const steps: TimelineStep[] = milestones.map(ms => ({
+    id: ms.id.toString(),
+    title: ms.title,
+    description: ms.status === "completed" 
+      ? "This phase has been successfully completed and verified by our legal experts." 
+      : ms.status === "current" 
+        ? "We are actively working on this phase. Check back soon for updates." 
+        : "Planned next step in your case progression.",
+    status: ms.status === "completed" ? "completed" : ms.status === "current" ? "active" : "upcoming",
+    date: ms.date
+  }));
+
   return (
     <motion.div
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
-      className="bg-white rounded-xl p-10 border border-slate-200 shadow-sm h-full"
+      className="bg-white rounded-xl p-10 border border-slate-200 shadow-sm h-full overflow-y-auto"
     >
       <div className="flex items-center justify-between mb-10">
-        <h3 className="text-xl font-display font-bold text-slate-900">Case Milestone Timeline</h3>
-        <div className="px-4 py-1.5 bg-green-50 text-green-600 rounded-full text-[10px] font-black uppercase tracking-widest border border-green-100">
-          Updated Today
+        <div>
+          <h3 className="text-xl font-display font-bold text-slate-900">Case Evolution</h3>
+          <p className="text-xs text-slate-400 font-medium mt-1">Real-time tracking of your legal matter.</p>
+        </div>
+        <div className="px-4 py-1.5 bg-green-50 text-green-600 rounded-full text-[10px] font-black uppercase tracking-widest border border-green-100 flex items-center gap-2">
+          <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+          Live Status
         </div>
       </div>
 
-      <div className="relative space-y-12">
-        {/* The connecting line */}
-        <div className="absolute left-[11px] top-2 bottom-2 w-0.5 bg-slate-100" />
-
-        {milestones.map((ms, idx) => (
-          <div key={ms.id} className="relative flex items-start gap-8 group">
-            <div className={cn(
-              "w-6 h-6 rounded-full border-4 relative z-10 transition-all duration-500",
-              ms.status === "completed" ? "bg-accent border-accent/20" :
-                ms.status === "current" ? "bg-white border-accent animate-pulse scale-110" :
-                  "bg-white border-slate-200"
-            )}>
-              {ms.status === "completed" && <CheckCircle2 className="text-white w-full h-full p-0.5" size={12} />}
-            </div>
-
-            <div className={cn(
-              "flex-1 transition-all duration-300",
-              ms.status === "upcoming" ? "opacity-40" : "opacity-100"
-            )}>
-              <div className="flex items-center justify-between mb-1">
-                <h4 className="text-sm font-bold text-slate-800 tracking-tight group-hover:text-accent transition-colors">{ms.title}</h4>
-                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{ms.date}</span>
-              </div>
-              <p className="text-xs text-slate-500 font-medium leading-relaxed max-w-md">
-                {ms.status === "completed"
-                  ? "All required documentation for this step has been reviewed and verified by our legal team."
-                  : ms.status === "current"
-                    ? "We are currently negotiating with the insurance adjusters to maximize your settlement value."
-                    : "Final step once all negotiations are settled."}
-              </p>
-            </div>
+      <CaseTimeline steps={steps} />
+      
+      <div className="mt-12 p-6 bg-slate-50 rounded-xl border border-slate-100">
+        <div className="flex items-start gap-4">
+          <div className="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center text-accent shadow-sm shrink-0">
+            <Clock size={18} />
           </div>
-        ))}
+          <div>
+            <h4 className="text-xs font-bold text-slate-900 mb-1">Estimated Completion</h4>
+            <p className="text-[11px] text-slate-500 leading-relaxed font-medium">
+              Based on current progress, we anticipate reaching the next major milestone within 14-21 business days. Note that court scheduling can affect these estimates.
+            </p>
+          </div>
+        </div>
       </div>
     </motion.div>
   );

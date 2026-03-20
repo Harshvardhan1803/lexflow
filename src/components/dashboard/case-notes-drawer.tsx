@@ -40,7 +40,7 @@ export function CaseNotesDrawer({ isOpen, onClose, leadId, leadName }: CaseNotes
   const [notes, setNotes] = useState<Note[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [activeTab, setActiveTab] = useState<"history" | "deadlines">("history");
+  const [activeTab, setActiveTab] = useState<"history" | "deadlines" | "timeline">("history");
   const [isAddDeadlineOpen, setIsAddDeadlineOpen] = useState(false);
   const [deadlineRefreshKey, setDeadlineRefreshKey] = useState(0);
 
@@ -135,6 +135,15 @@ export function CaseNotesDrawer({ isOpen, onClose, leadId, leadName }: CaseNotes
               >
                 Deadline Tracker
               </button>
+              <button
+                onClick={() => setActiveTab("timeline")}
+                className={cn(
+                  "flex-1 py-3 text-[10px] font-black uppercase tracking-widest border-b-2 transition-all",
+                  activeTab === "timeline" ? "border-accent text-accent" : "border-transparent text-slate-400"
+                )}
+              >
+                Case Timeline
+              </button>
             </div>
 
             {/* Search / Context Actions */}
@@ -208,9 +217,13 @@ export function CaseNotesDrawer({ isOpen, onClose, leadId, leadName }: CaseNotes
                     </div>
                   )}
                 </div>
-              ) : (
+              ) : activeTab === "deadlines" ? (
                 <div className="animate-in fade-in slide-in-from-right-4 duration-300">
                   <DeadlineTracker key={deadlineRefreshKey} leadId={Number(leadId)} />
+                </div>
+              ) : (
+                <div className="animate-in fade-in slide-in-from-right-4 duration-300">
+                   <CaseTimelineInternal leadId={leadId} />
                 </div>
               )}
             </div>
@@ -235,5 +248,43 @@ export function CaseNotesDrawer({ isOpen, onClose, leadId, leadName }: CaseNotes
         </>
       )}
     </AnimatePresence>
+  );
+}
+
+import { CaseTimeline } from "./case-timeline";
+
+function CaseTimelineInternal({ leadId }: { leadId: string }) {
+  const [steps, setSteps] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchTimeline = async () => {
+      try {
+        const res = await fetch(`/api/cases/${leadId}/timeline`);
+        if (res.ok) {
+          const data = await res.json();
+          setSteps(data.data);
+        }
+      } catch (err) {
+        console.error("Fetch timeline failed:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchTimeline();
+  }, [leadId]);
+
+  if (isLoading) return <div className="h-48 flex items-center justify-center"><LexLoader label="Generating Timeline..." /></div>;
+
+  return (
+    <div className="p-2">
+      <div className="mb-8 p-4 bg-accent/5 border border-accent/10 rounded-xl">
+        <p className="text-[11px] font-bold text-slate-600 flex items-center gap-2">
+           <Sparkles size={12} className="text-accent" />
+           LexFlow AI has calculated this case journey based on current laws and matter history.
+        </p>
+      </div>
+      <CaseTimeline steps={steps} />
+    </div>
   );
 }

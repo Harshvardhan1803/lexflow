@@ -191,7 +191,7 @@ export function LeadsTable({ leads = [], isLoading = false }: { leads?: Lead[], 
                           </Link>
                         </Tooltip>
 
-                        {lead.status !== ("case" as any) && (
+                        {lead.status !== ("case" as any) && lead.status !== ("Converted" as any) && (
                           <Tooltip title="Convert to Case" placement="top" arrow slots={{ transition: Zoom }} slotProps={{ tooltip: { sx: { bgcolor: '#0f172a', fontWeight: 700, borderRadius: '8px' } } }}>
                             <button
                               onClick={() => handleStatusUpdate(lead.id, "Converted")}

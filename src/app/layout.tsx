@@ -15,6 +15,9 @@ const outfit = Outfit({
 export const metadata: Metadata = {
   title: "LexFlow | AI-Powered Legal Client Intake & Case Communication",
   description: "Automate client intake, case tracking, and legal communication for your law firm with LexFlow AI.",
+  icons: {
+    icon: "/icon.png",
+  },
 };
 
 import { IntakeBot } from "@/components/ui/intake-bot";
