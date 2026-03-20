@@ -223,7 +223,7 @@ export function IntakeBot() {
             initial={{ opacity: 0, scale: 0.9, y: 20, transformOrigin: "bottom right" }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            className="fixed bottom-24 right-6 z-9999 w-[380px] h-[550px] bg-white rounded-4xl shadow-[-20px_20px_60px_rgba(0,0,0,0.1)] border border-slate-100 flex flex-col overflow-hidden"
+            className="fixed bottom-24 right-6 z-9999 w-[380px] h-[550px] bg-white rounded-xl shadow-[-20px_20px_60px_rgba(0,0,0,0.1)] border border-slate-100 flex flex-col overflow-hidden"
           >
             {/* Header */}
             <div className="p-6 bg-slate-950 text-white relative">
@@ -332,9 +332,9 @@ export function IntakeBot() {
         )}
       </AnimatePresence>
 
-      <CalendlyModal 
-        isOpen={isCalendlyOpen} 
-        onClose={() => setIsCalendlyOpen(false)} 
+      <CalendlyModal
+        isOpen={isCalendlyOpen}
+        onClose={() => setIsCalendlyOpen(false)}
       />
     </>
   );

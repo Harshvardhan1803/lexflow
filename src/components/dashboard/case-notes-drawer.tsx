@@ -47,10 +47,16 @@ export function CaseNotesDrawer({ isOpen, onClose, leadId, leadName }: CaseNotes
   const fetchNotes = async () => {
     setIsLoading(true);
     try {
-      const res = await fetch(`/api/leads/notes/${leadId}`);
+      const res = await fetch(`/api/notes?contact_id=${leadId}&t=${Date.now()}`);
       if (res.ok) {
         const data = await res.json();
-        setNotes(data.notes || []);
+        const formattedNotes = data.data.map((n: any) => ({
+          id: n.id.toString(),
+          content: n.content,
+          type: n.type || "Lead Action",
+          date: n.created_at
+        }));
+        setNotes(formattedNotes);
       }
     } catch (err) {
       console.error("Fetch notes failed:", err);
@@ -171,8 +177,10 @@ export function CaseNotesDrawer({ isOpen, onClose, leadId, leadName }: CaseNotes
                           <div className="absolute left-[11px] top-4 bottom-[-24px] w-0.5 bg-slate-50" />
                         )}
                         <div className="absolute left-0 top-1 w-6 h-6 rounded-full bg-white border border-slate-100 flex items-center justify-center z-10 group-hover:border-accent transition-colors">
-                          {note.type.includes("AI") ? (
+                          {note.type === "AI Action" ? (
                             <Sparkles size={10} className="text-accent" />
+                          ) : note.type === "Status Change" ? (
+                            <Clock size={10} className="text-blue-500" />
                           ) : (
                             <FileText size={10} className="text-slate-400" />
                           )}

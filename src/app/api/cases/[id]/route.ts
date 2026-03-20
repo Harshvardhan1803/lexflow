@@ -7,51 +7,85 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
+    const numericId = parseInt(id);
 
-    // Fetch case details with joined contact and user (attorney) info
-    const query = `
+    if (isNaN(numericId)) {
+      return NextResponse.json({ success: false, message: "Invalid ID format" }, { status: 400 });
+    }
+
+    // 1. Fetch contact/case details
+    const contactQuery = `
       SELECT 
-        c.id as case_id,
-        c.type as case_type,
+        c.id as contact_id,
+        c.name as client_name,
         c.status as case_status,
-        c.milestones,
-        ct.name as client_name,
-        u.name as attorney_name,
-        f.name as firm_name
-      FROM cases c
-      JOIN contacts ct ON c.contact_id = ct.id
-      JOIN firms f ON c.firm_id = f.id
-      LEFT JOIN users u ON c.assigned_attorney_id = u.id
+        c.intake_answers->>'selected_case_type' as case_type,
+        cs.id as case_id,
+        u.name as attorney_name
+      FROM contacts c
+      LEFT JOIN cases cs ON c.id = cs.contact_id
+      LEFT JOIN users u ON cs.assigned_attorney_id = u.id
       WHERE c.id = $1
+      LIMIT 1
     `;
     
-    const result = await pool.query(query, [id]);
+    const contactResult = await pool.query(contactQuery, [numericId]);
 
-    if (result.rows.length === 0) {
-      // For now, if no case found, return a formatted mock for the demo portal
-      return NextResponse.json({
-        success: true,
-        isMock: true,
-        data: {
-          id: id,
-          type: "Personal Injury",
-          status: "In Progress",
-          client_name: "John Doe",
-          attorney_name: "Robert Taylor",
-          firm_name: "LexFlow Legal",
-          milestones: [
-            { id: 1, title: "Intake Completed", date: "Mar 15, 2024", status: "completed" },
-            { id: 2, title: "Evidence Collection", date: "Mar 18, 2024", status: "completed" },
-            { id: 3, title: "Insurance Negotiation", date: "Ongoing", status: "current" },
-            { id: 4, title: "Final Settlement", date: "Est. Apr 2024", status: "upcoming" }
-          ]
-        }
-      });
+    if (contactResult.rows.length === 0) {
+      return NextResponse.json({ success: false, message: "Contact not found" }, { status: 404 });
     }
+
+    const baseData = contactResult.rows[0];
+
+    // 2. Fetch firm info separately for resilience
+    const firmResult = await pool.query("SELECT name FROM firms LIMIT 1");
+    const firmName = firmResult.rows[0]?.name || "LexFlow Legal";
+
+    // 3. Fetch milestones (Deadlines)
+    const deadlinesRes = await pool.query(
+      "SELECT id, title, deadline_date as date, status FROM deadlines WHERE lead_id = $1 ORDER BY deadline_date ASC",
+      [id]
+    );
+
+    const milestones = deadlinesRes.rows.map((d: any) => ({
+      id: d.id,
+      title: d.title,
+      date: d.date ? new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : "TBD",
+      status: d.status === 'completed' ? 'completed' : 'upcoming'
+    }));
+
+    // If no real milestones, provide fallback for demo impact
+    const finalMilestones = milestones.length > 0 ? milestones : [
+      { id: 1, title: "Intake Completed", date: "Mar 15, 2024", status: "completed" },
+      { id: 2, title: "Case Review", date: "Mar 18, 2024", status: "completed" },
+      { id: 3, title: "Next Steps", date: "Ongoing", status: "current" }
+    ];
+
+    // 4. Fetch documents
+    const docsRes = await pool.query(
+      "SELECT id, file_name as name, created_at as date FROM document_summaries WHERE contact_id = $1 ORDER BY created_at DESC",
+      [numericId]
+    );
+
+    const documents = docsRes.rows.map((d: any) => ({
+      id: d.id,
+      name: d.name,
+      size: "Under Review",
+      date: new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+    }));
 
     return NextResponse.json({
       success: true,
-      data: result.rows[0]
+      data: {
+        case_id: baseData.case_id ? `CASE-${baseData.case_id}` : `LEAD-${baseData.contact_id}`,
+        case_type: baseData.case_type || "General Legal Matter",
+        case_status: baseData.case_status === 'case' ? "In Progress" : "Screening",
+        client_name: baseData.client_name,
+        attorney_name: baseData.attorney_name || "Assigned Associate",
+        firm_name: firmName,
+        milestones: finalMilestones,
+        documents: documents.length > 0 ? documents : null
+      }
     });
   } catch (error) {
     console.error("Database error:", error);

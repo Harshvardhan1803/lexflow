@@ -194,7 +194,7 @@ export default function CasePortalPage() {
             <div className="flex-1 min-h-[500px]">
               {activeTab === "status" && <StatusTimeline milestones={caseInfo.milestones} />}
               {activeTab === "documents" && <DocumentView documents={caseInfo.documents || MOCK_CASE.documents!} />}
-              {activeTab === "messages" && <PortalMessaging attorneyName={caseInfo.attorney_name} />}
+              {activeTab === "messages" && <PortalMessaging contactId={params?.id as string} attorneyName={caseInfo.attorney_name} />}
             </div>
           </div>
 
@@ -293,7 +293,7 @@ function DocumentView({ documents }: {
     <motion.div
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
-      className="bg-white rounded-xl p-10 border border-slate-200 shadow-sm h-full flex flex-col"
+      className="bg-white rounded-xl p-8 border border-slate-200 shadow-sm h-[750px] flex flex-col"
     >
       <div className="flex items-center justify-between mb-8">
         <div>
@@ -306,15 +306,16 @@ function DocumentView({ documents }: {
         </button>
       </div>
 
-      <div className="space-y-3">
+      {/* Scrollable list area */}
+      <div className="flex-1 overflow-y-auto pr-2 min-h-[300px] max-h-[500px] space-y-3 custom-scrollbar">
         {documents.map((doc) => (
           <div key={doc.id} className="flex items-center justify-between p-4 rounded-xl border border-slate-100 hover:border-accent/30 hover:bg-slate-50 transition-all group">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 bg-white border border-slate-100 rounded-xl flex items-center justify-center text-slate-400 group-hover:text-accent transition-colors">
                 <FileText size={24} />
               </div>
-              <div>
-                <h4 className="text-sm font-bold text-slate-800">{doc.name}</h4>
+              <div className="min-w-0 flex-1">
+                <h4 className="text-sm font-bold text-slate-800 truncate">{doc.name}</h4>
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">{doc.size} • {doc.date}</p>
               </div>
             </div>
@@ -325,7 +326,7 @@ function DocumentView({ documents }: {
         ))}
       </div>
 
-      <div className="mt-auto pt-10">
+      <div className="mt-8 pt-6 border-t border-slate-50">
         <div className="p-6 bg-accent/5 rounded-xl border border-accent/10 border-dashed text-center">
           <Upload className="mx-auto text-accent/40 mb-3" size={32} />
           <p className="text-xs font-bold text-slate-600 mb-1">Drag and drop additional files</p>
@@ -336,14 +337,52 @@ function DocumentView({ documents }: {
   );
 }
 
-function PortalMessaging({ attorneyName }: { attorneyName: string }) {
+function PortalMessaging({ contactId, attorneyName }: { contactId: string; attorneyName: string }) {
   const [msg, setMsg] = useState("");
+  const [messages, setMessages] = useState<any[]>([]);
+  const [isSending, setIsSending] = useState(false);
+
+  useEffect(() => {
+    async function fetchMessages() {
+      try {
+        const res = await fetch(`/api/chat/messages?contact_id=${contactId}`);
+        if (res.ok) {
+          const data = await res.json();
+          setMessages(data.data || []);
+        }
+      } catch (err) {
+        console.error("Portal fetch messages failed:", err);
+      }
+    }
+    if (contactId) fetchMessages();
+  }, [contactId]);
+
+  const handleSend = async () => {
+    if (!msg.trim() || isSending) return;
+    try {
+      setIsSending(true);
+      const res = await fetch("/api/chat/messages", {
+        method: "POST",
+        body: JSON.stringify({ contact_id: contactId, content: msg, sender_type: "client" }),
+        headers: { "Content-Type": "application/json" }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setMessages(prev => [...prev, data.data]);
+        setMsg("");
+      }
+    } catch (err) {
+      console.error("Portal send message failed:", err);
+    } finally {
+      setIsSending(false);
+    }
+  };
 
   return (
     <motion.div
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
-      className="bg-white rounded-xl p-10 border border-slate-200 shadow-sm h-full flex flex-col"
+      className="bg-white rounded-xl p-8 border border-slate-200 shadow-sm h-[750px] flex flex-col"
     >
       <div className="flex items-center gap-4 mb-8">
         <div className="w-12 h-12 rounded-xl bg-accent flex items-center justify-center shadow-lg shadow-accent/20">
@@ -358,14 +397,31 @@ function PortalMessaging({ attorneyName }: { attorneyName: string }) {
       </div>
 
       <div className="flex-1 space-y-4 overflow-y-auto mb-6 scrollbar-hide">
-        <div className="flex justify-start">
-          <div className="max-w-[80%] p-4 bg-slate-50 border border-slate-100 rounded-xl rounded-tl-none">
-            <p className="text-sm font-medium text-slate-700 leading-relaxed italic">
-              &quot;Hi John, I&apos;ve received the medical records you uploaded yesterday. I&apos;ll be reviewing them this afternoon and will update the timeline shortly.&quot;
-            </p>
-            <span className="text-[10px] font-bold text-slate-400 mt-2 block">10:15 AM</span>
+        {messages.length === 0 ? (
+          <div className="h-full flex flex-col items-center justify-center text-slate-400 gap-2 opacity-50">
+            <MessageSquare size={32} />
+            <p className="text-xs font-bold uppercase tracking-widest">No messages yet</p>
           </div>
-        </div>
+        ) : (
+          messages.map((m, idx) => (
+            <div key={idx} className={cn("flex", m.sender_type === "client" ? "justify-end" : "justify-start")}>
+              <div className={cn(
+                "max-w-[80%] p-4 rounded-xl text-sm font-medium leading-relaxed",
+                m.sender_type === "client" 
+                  ? "bg-accent text-white rounded-tr-none shadow-lg shadow-accent/10" 
+                  : "bg-slate-50 border border-slate-100 rounded-tl-none text-slate-700"
+              )}>
+                {m.content}
+                <span className={cn(
+                  "text-[8px] font-bold mt-1.5 block uppercase tracking-tighter opacity-60",
+                  m.sender_type === "client" ? "text-right" : "text-left"
+                )}>
+                  {new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                </span>
+              </div>
+            </div>
+          ))
+        )}
       </div>
 
       <div className="relative">
@@ -375,12 +431,16 @@ function PortalMessaging({ attorneyName }: { attorneyName: string }) {
           rows={3}
           value={msg}
           onChange={(e) => setMsg(e.target.value)}
+          disabled={isSending}
         />
-        <button className={cn(
+        <button 
+          onClick={handleSend}
+          disabled={!msg.trim() || isSending}
+          className={cn(
           "absolute bottom-4 right-4 w-10 h-10 rounded-xl flex items-center justify-center transition-all",
-          msg.trim() ? "bg-accent text-white shadow-lg" : "bg-slate-200 text-slate-400 opacity-50"
+          msg.trim() && !isSending ? "bg-accent text-white shadow-lg shadow-accent/20 hover:scale-105 active:scale-95" : "bg-slate-200 text-slate-400 opacity-50"
         )}>
-          <ChevronRight size={20} />
+          {isSending ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <ChevronRight size={20} />}
         </button>
       </div>
     </motion.div>

@@ -25,6 +25,16 @@ export async function PATCH(
       return NextResponse.json({ success: false, message: "Lead not found" }, { status: 404 });
     }
 
+    // Automatically log this action to the audit/activity history table
+    try {
+      await query(
+        "INSERT INTO notes (contact_id, content, type) VALUES ($1, $2, $3)",
+        [id, `Lead status was updated to ${status}.`, "Status Change"]
+      );
+    } catch (logError) {
+      console.error("Failed to log status change:", logError);
+    }
+
     return NextResponse.json({
       success: true,
       data: result.rows[0],

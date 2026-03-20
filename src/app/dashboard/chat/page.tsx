@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { 
   MessageSquare, 
   Search, 
@@ -11,46 +11,83 @@ import {
   Clock,
   CheckCheck,
   MoreVertical,
-  Filter
+  Filter,
+  Loader2
 } from "lucide-react";
 import { cn } from "@/utils/utils";
 
-const MOCK_MESSAGES = [
-  { 
-    id: 1, 
-    sender: "Harsh Vardhan", 
-    subject: "Personal Injury Case Update", 
-    preview: "I wanted to check if there are any updates on the filing for my case...", 
-    time: "10:24 AM", 
-    unread: true,
-    initials: "HV",
-    color: "bg-blue-100 text-blue-600"
-  },
-  { 
-    id: 2, 
-    sender: "Rahul Sharma", 
-    subject: "H1B Documentation Query", 
-    preview: "I've uploaded the requested birth certificate to the portal. Please verify...", 
-    time: "Yesterday", 
-    unread: false,
-    initials: "RS",
-    color: "bg-purple-100 text-purple-600"
-  },
-  { 
-    id: 3, 
-    sender: "Aman Singh", 
-    subject: "Court Date Confirmation", 
-    preview: "Thank you for the draft response. I will be present at the hearing...", 
-    time: "Mar 18", 
-    unread: false,
-    initials: "AS",
-    color: "bg-green-100 text-green-600"
-  }
-];
-
 export default function ChatPage() {
-  const [activeTab, setActiveTab] = useState("inbox");
-  const [selectedChat, setSelectedChat] = useState<any>(MOCK_MESSAGES[0]);
+  const [threads, setThreads] = useState<any[]>([]);
+  const [selectedChat, setSelectedChat] = useState<any>(null);
+  const [messages, setMessages] = useState<any[]>([]);
+  const [inputValue, setInputValue] = useState("");
+  const [isLoadingThreads, setIsLoadingThreads] = useState(true);
+  const [isLoadingMessages, setIsLoadingMessages] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    async function fetchThreads() {
+      try {
+        const res = await fetch("/api/chat/threads");
+        const data = await res.json();
+        if (data.success) {
+          setThreads(data.data);
+          if (data.data.length > 0) setSelectedChat(data.data[0]);
+        }
+      } catch (err) {
+        console.error("Fetch threads failed:", err);
+      } finally {
+        setIsLoadingThreads(false);
+      }
+    }
+    fetchThreads();
+  }, []);
+
+  useEffect(() => {
+    if (selectedChat) {
+      async function fetchMessages() {
+        setIsLoadingMessages(true);
+        try {
+          const res = await fetch(`/api/chat/messages?contact_id=${selectedChat.id}`);
+          const data = await res.json();
+          if (data.success) setMessages(data.data);
+        } catch (err) {
+          console.error("Fetch messages failed:", err);
+        } finally {
+          setIsLoadingMessages(false);
+        }
+      }
+      fetchMessages();
+    }
+  }, [selectedChat]);
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [messages]);
+
+  const handleSendMessage = async () => {
+    if (!inputValue.trim() || !selectedChat) return;
+    
+    const content = inputValue;
+    setInputValue("");
+    
+    // Optimistic update
+    const tempMsg = { id: Date.now(), contact_id: selectedChat.id, sender_type: 'firm', content, created_at: new Date().toISOString() };
+    setMessages(prev => [...prev, tempMsg]);
+
+    try {
+      const res = await fetch("/api/chat/messages", {
+        method: "POST",
+        body: JSON.stringify({ contact_id: selectedChat.id, sender_type: 'firm', content }),
+        headers: { "Content-Type": "application/json" }
+      });
+      if (!res.ok) throw new Error("Failed to send");
+    } catch (err) {
+      console.error("Send failed:", err);
+    }
+  };
 
   return (
     <div className="h-[calc(100vh-120px)] flex gap-6 animate-in fade-in duration-700">
@@ -74,29 +111,39 @@ export default function ChatPage() {
         </div>
 
         <div className="flex-1 overflow-y-auto p-4 space-y-2">
-           {MOCK_MESSAGES.map((msg) => (
-             <button
-               key={msg.id}
-               onClick={() => setSelectedChat(msg)}
-               className={cn(
-                 "w-full p-4 rounded-xl flex items-start gap-4 transition-all text-left group",
-                 selectedChat?.id === msg.id ? "bg-accent/5 border border-accent/10" : "hover:bg-slate-50/50 border border-transparent"
-               )}
-             >
-               <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center font-bold text-xs shrink-0", msg.color)}>
-                 {msg.initials}
-               </div>
-               <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-xs font-bold text-slate-900 truncate">{msg.sender}</span>
-                    <span className="text-[10px] text-slate-400">{msg.time}</span>
-                  </div>
-                  <p className="text-[11px] font-bold text-slate-700 truncate mb-1">{msg.subject}</p>
-                  <p className="text-[10px] text-slate-400 truncate leading-relaxed">{msg.preview}</p>
-               </div>
-               {msg.unread && <div className="w-2 h-2 bg-accent rounded-full mt-1.5 shadow-sm" />}
-             </button>
-           ))}
+           {isLoadingThreads ? (
+             <div className="p-8 flex items-center justify-center">
+               <Loader2 className="animate-spin text-slate-300" size={24} />
+             </div>
+           ) : threads.length > 0 ? (
+             threads.map((msg) => (
+               <button
+                 key={msg.id}
+                 onClick={() => setSelectedChat(msg)}
+                 className={cn(
+                   "w-full p-4 rounded-xl flex items-start gap-4 transition-all text-left group",
+                   selectedChat?.id === msg.id ? "bg-accent/5 border border-accent/10" : "hover:bg-slate-50/50 border border-transparent"
+                 )}
+               >
+                 <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center font-bold text-xs shrink-0", msg.color)}>
+                   {msg.initials}
+                 </div>
+                 <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-xs font-bold text-slate-900 truncate">{msg.sender}</span>
+                      <span className="text-[10px] text-slate-400">{msg.time}</span>
+                    </div>
+                    <p className="text-[11px] font-bold text-slate-700 truncate mb-1">{msg.subject}</p>
+                    <p className="text-[10px] text-slate-400 truncate leading-relaxed">{msg.preview}</p>
+                 </div>
+                 {msg.unread && <div className="w-2 h-2 bg-accent rounded-full mt-1.5 shadow-sm" />}
+               </button>
+             ))
+           ) : (
+             <div className="py-20 text-center text-slate-400">
+               <p className="text-xs font-bold uppercase tracking-widest">No conversations found</p>
+             </div>
+           )}
         </div>
       </div>
 
@@ -129,41 +176,51 @@ export default function ChatPage() {
             </div>
 
             {/* Message Area */}
-            <div className="flex-1 overflow-y-auto p-8 space-y-8">
-               <div className="flex flex-col items-center gap-4 py-4">
-                  <div className="px-4 py-1.5 bg-slate-50 rounded-full text-[10px] font-black uppercase tracking-widest text-slate-400">
-                    Today
-                  </div>
-               </div>
-
-               <div className="flex items-start gap-4">
-                  <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center font-bold text-[10px]", selectedChat.color)}>
-                    {selectedChat.initials}
-                  </div>
-                  <div className="max-w-xl">
-                    <div className="bg-slate-50 p-4 rounded-xl rounded-tl-none text-xs text-slate-600 leading-relaxed font-medium">
-                       {selectedChat.preview} Is there anyone from the intake team who can give me a quick call? I'm a bit nervous about the discovery deadline coming up.
-                    </div>
-                    <span className="text-[9px] text-slate-400 font-medium mt-2 block ml-1">10:24 AM</span>
-                  </div>
-               </div>
-
-               <div className="flex items-start justify-end gap-4">
-                  <div className="max-w-xl text-right">
-                    <div className="bg-slate-900 text-white p-4 rounded-xl rounded-tr-none text-xs leading-relaxed font-medium shadow-xl shadow-slate-900/10">
-                       Hello {selectedChat.sender.split(' ')[0]}! We've received your request. I've already shared an AI-generated draft case strategy with your attorney. We'll be in touch shortly.
-                    </div>
-                    <div className="flex items-center justify-end gap-2 mt-2 mr-1">
-                      <span className="text-[9px] text-slate-400 font-medium tracking-tight">10:25 AM</span>
-                      <CheckCheck size={12} className="text-accent" />
-                    </div>
-                  </div>
-               </div>
+            <div ref={scrollRef} className="flex-1 overflow-y-auto p-8 space-y-8 scroll-smooth">
+               {isLoadingMessages ? (
+                 <div className="h-full flex items-center justify-center">
+                   <Loader2 className="animate-spin text-slate-200" size={32} />
+                 </div>
+               ) : messages.length > 0 ? (
+                 messages.map((m) => (
+                   <div key={m.id} className={cn(
+                     "flex items-start gap-4",
+                     m.sender_type === 'firm' ? "justify-end" : "justify-start"
+                   )}>
+                     {m.sender_type !== 'firm' && (
+                       <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center font-bold text-[10px]", selectedChat.color)}>
+                         {selectedChat.initials}
+                       </div>
+                     )}
+                     <div className={cn("max-w-xl", m.sender_type === 'firm' ? "text-right" : "text-left")}>
+                        <div className={cn(
+                          "p-4 rounded-xl text-xs leading-relaxed font-medium",
+                          m.sender_type === 'firm' 
+                            ? "bg-slate-900 text-white rounded-tr-none shadow-xl shadow-slate-900/10" 
+                            : "bg-slate-50 text-slate-600 rounded-tl-none border border-slate-100"
+                        )}>
+                           {m.content}
+                        </div>
+                        <div className={cn("flex items-center gap-2 mt-2", m.sender_type === 'firm' ? "justify-end mr-1" : "justify-start ml-1")}>
+                          <span className="text-[9px] text-slate-400 font-medium tracking-tight">
+                            {new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          </span>
+                          {m.sender_type === 'firm' && <CheckCheck size={12} className="text-accent" />}
+                        </div>
+                     </div>
+                   </div>
+                 ))
+               ) : (
+                <div className="h-full flex flex-col items-center justify-center text-slate-300 gap-4">
+                  <Sparkles size={32} className="opacity-20" />
+                  <p className="text-[10px] font-bold uppercase tracking-widest">Start the conversation with AI drafting</p>
+                </div>
+               )}
             </div>
 
             {/* AI Assistant Overlay (Subtle) */}
             <div className="absolute bottom-28 left-8 right-8">
-               <div className="bg-gradient-to-r from-accent/5 to-transparent border border-accent/20 rounded-xl p-4 flex items-center justify-between backdrop-blur-sm">
+               <div className="bg-linear-to-r from-accent/5 to-transparent border border-accent/20 rounded-xl p-4 flex items-center justify-between backdrop-blur-sm">
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 bg-accent rounded-lg flex items-center justify-center text-white shadow-lg shadow-accent/20">
                       <Sparkles size={16} />
@@ -173,7 +230,10 @@ export default function ChatPage() {
                        <p className="text-[11px] font-medium text-slate-600">"I'll confirm the court appearance and share the secure document link."</p>
                     </div>
                   </div>
-                  <button className="px-4 py-2 bg-accent text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-all shadow-lg shadow-accent/20">
+                  <button 
+                    onClick={() => setInputValue("I'll confirm the court appearance and share the secure document link.")}
+                    className="px-4 py-2 bg-accent text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-all shadow-lg shadow-accent/20 active:scale-95"
+                  >
                     Use Draft
                   </button>
                </div>
@@ -184,10 +244,16 @@ export default function ChatPage() {
                <div className="bg-slate-50 rounded-xl p-2 flex items-center gap-2 border border-slate-100 focus-within:ring-4 focus-within:ring-accent/5 focus-within:border-accent transition-all group">
                   <input 
                     type="text" 
+                    value={inputValue}
+                    onChange={(e) => setInputValue(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
                     placeholder="Type your message or ask AI to draft..."
                     className="flex-1 bg-transparent border-none outline-none font-medium text-xs px-4 py-2 text-slate-700 placeholder:text-slate-400"
                   />
-                  <button className="p-3 bg-slate-900 text-white rounded-xl hover:scale-105 active:scale-95 transition-all shadow-xl shadow-slate-900/10">
+                  <button 
+                    onClick={handleSendMessage}
+                    className="p-3 bg-slate-900 text-white rounded-xl hover:scale-105 active:scale-95 transition-all shadow-xl shadow-slate-900/10"
+                  >
                     <Send size={18} />
                   </button>
                </div>

@@ -102,7 +102,7 @@ export function SummaryResults({ data, onReset }: SummaryResultsProps) {
         </motion.div>
 
         {/* Timeline */}
-        <motion.div variants={item} className="bg-white border border-slate-100 rounded-4xl p-8 space-y-6 shadow-sm">
+        <motion.div variants={item} className="bg-white border border-slate-100 rounded-xl p-8 space-y-6 shadow-sm">
           <h3 className="text-sm font-bold text-slate-900 border-l-4 border-blue-500 pl-4 flex items-center gap-2">
             <Calendar size={16} /> Critical Deadlines & Timeline
           </h3>
@@ -120,7 +120,7 @@ export function SummaryResults({ data, onReset }: SummaryResultsProps) {
         </motion.div>
 
         {/* Risks & Red Flags */}
-        <motion.div variants={item} className="bg-red-50/30 border border-red-100 rounded-4xl p-8 space-y-6 shadow-sm">
+        <motion.div variants={item} className="bg-red-50/30 border border-red-100 rounded-xl p-8 space-y-6 shadow-sm">
           <h3 className="text-sm font-bold text-red-900 border-l-4 border-red-500 pl-4 flex items-center gap-2">
             <AlertTriangle size={16} /> Risks & Red Flags
           </h3>
@@ -145,7 +145,7 @@ export function SummaryResults({ data, onReset }: SummaryResultsProps) {
         </motion.div>
 
         {/* Obligations */}
-        <motion.div variants={item} className="bg-emerald-50/30 border border-emerald-100 rounded-4xl p-8 space-y-6 shadow-sm">
+        <motion.div variants={item} className="bg-emerald-50/30 border border-emerald-100 rounded-xl p-8 space-y-6 shadow-sm">
           <h3 className="text-sm font-bold text-emerald-900 border-l-4 border-emerald-500 pl-4 flex items-center gap-2">
             <ShieldCheck size={16} /> Summary of Obligations
           </h3>
@@ -164,7 +164,7 @@ export function SummaryResults({ data, onReset }: SummaryResultsProps) {
         </motion.div>
       </div>
 
-      <motion.div variants={item} className="p-8 bg-slate-50 border border-slate-100 rounded-4xl flex items-center justify-between">
+      <motion.div variants={item} className="p-8 bg-slate-50 border border-slate-100 rounded-xl flex items-center justify-between">
         <div className="flex items-center gap-4">
           <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-slate-400 border border-slate-100">
             <Share2 size={24} />

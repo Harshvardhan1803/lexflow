@@ -31,13 +31,25 @@ export default function CalendarPage() {
   const monthName = currentDate.toLocaleString('default', { month: 'long' });
 
   useEffect(() => {
-    // In a real app, fetch deadlines from API
-    // Mocking for now
-    setEvents([
-      { id: 1, title: "Response Due: Smith v. Jones", date: new Date(2026, 2, 22), type: "deadline", status: "pending" },
-      { id: 2, title: "Discovery Cut-off", date: new Date(2026, 2, 25), type: "deadline", status: "pending" },
-      { id: 3, title: "Filing Deadline (Leads)", date: new Date(2026, 2, 19), type: "court", status: "completed" },
-    ]);
+    async function fetchDeadlines() {
+      try {
+        const response = await fetch("/api/deadlines");
+        const data = await response.json();
+        if (data.success) {
+          const formattedEvents = data.data.map((d: any) => ({
+            id: d.id,
+            title: d.title,
+            date: new Date(d.date),
+            type: d.type,
+            status: d.status
+          }));
+          setEvents(formattedEvents);
+        }
+      } catch (error) {
+        console.error("Failed to fetch deadlines:", error);
+      }
+    }
+    fetchDeadlines();
   }, []);
 
   const prevMonth = () => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1));
@@ -94,13 +106,19 @@ export default function CalendarPage() {
                 <div key={`blank-${i}`} className="min-h-[120px] p-2 border-b border-r border-slate-50 bg-slate-50/20" />
               ))}
               {calendarDays.map(day => {
-                const dayEvents = events.filter(e => e.date.getDate() === day && e.date.getMonth() === currentDate.getMonth());
-                const isToday = day === new Date().getDate() && currentDate.getMonth() === new Date().getMonth();
+                const dayEvents = events.filter(e => 
+                  e.date.getDate() === day && 
+                  e.date.getMonth() === currentDate.getMonth() &&
+                  e.date.getFullYear() === currentDate.getFullYear()
+                );
+                const isToday = day === new Date().getDate() && 
+                               currentDate.getMonth() === new Date().getMonth() &&
+                               currentDate.getFullYear() === new Date().getFullYear();
 
                 return (
                   <div key={day} className={cn(
                     "min-h-[120px] p-2 border-b border-r border-slate-50 hover:bg-slate-50/30 transition-colors",
-                    isToday && "bg-accent/[0.02]"
+                    isToday && "bg-accent/2"
                   )}>
                     <div className="flex justify-between items-start mb-2">
                       <span className={cn(

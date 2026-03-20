@@ -15,18 +15,33 @@ import { cn } from "@/utils/utils";
 import { LeadsTable } from "@/components/dashboard/leads-table";
 
 export default function ActiveCasesPage() {
-  const [cases, setCases] = useState([]);
+  const [cases, setCases] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [deadlinesCount, setDeadlinesCount] = useState(0);
 
   useEffect(() => {
-    const fetchCases = async () => {
+    const fetchData = async () => {
       try {
-        const res = await fetch("/api/leads");
-        if (res.ok) {
-          const data = await res.json();
-          // Filter only those with 'case' status
+        const [leadsRes, deadlinesRes] = await Promise.all([
+          fetch("/api/leads"),
+          fetch("/api/deadlines")
+        ]);
+
+        if (leadsRes.ok) {
+          const data = await leadsRes.json();
           const activeCases = (data.data || []).filter((item: any) => item.status === "case");
           setCases(activeCases);
+        }
+
+        if (deadlinesRes.ok) {
+          const data = await deadlinesRes.json();
+          const upcoming = (data.data || []).filter((d: any) => {
+            const date = new Date(d.date);
+            const weekAway = new Date();
+            weekAway.setDate(weekAway.getDate() + 7);
+            return d.status === 'pending' && date <= weekAway;
+          });
+          setDeadlinesCount(upcoming.length);
         }
       } catch (err) {
         console.error("Fetch cases failed:", err);
@@ -34,7 +49,7 @@ export default function ActiveCasesPage() {
         setIsLoading(false);
       }
     };
-    fetchCases();
+    fetchData();
   }, []);
 
   return (
@@ -67,17 +82,17 @@ export default function ActiveCasesPage() {
         />
         <StatCard
           label="Upcoming Deadlines"
-          value="12"
+          value={deadlinesCount.toString()}
           subtext="Next 7 days"
           icon={<Clock size={18} />}
           variant="accent"
         />
         <StatCard
           label="Risk Alerts"
-          value="2"
-          subtext="Requires attention"
+          value={deadlinesCount > 5 ? "High" : "Low"}
+          subtext={deadlinesCount > 0 ? "Check timeline" : "No risks detected"}
           icon={<AlertCircle size={18} />}
-          variant="danger"
+          variant={deadlinesCount > 5 ? "danger" : "default"}
         />
       </div>
 

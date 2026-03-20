@@ -32,8 +32,19 @@ const navItems = [
 export function Sidebar() {
   const pathname = usePathname();
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [userRole, setUserRole] = useState<string>("User");
 
   useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      try {
+        const user = JSON.parse(storedUser);
+        setUserRole(user.role || "User");
+      } catch (e) {
+        console.error(e);
+      }
+    }
+    
     const handleResize = () => {
       if (window.innerWidth < 1024) setIsCollapsed(true);
     };
@@ -41,6 +52,16 @@ export function Sidebar() {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+
+  // Define logic for item visibility
+  const isItemVisible = (name: string) => {
+    const roleNormalized = userRole.toLowerCase();
+    if (roleNormalized === "admin") return true;
+    
+    // Non-Admin (Attorney) restricted items
+    const restricted = ["AI Discovery", "Settings"];
+    return !restricted.includes(name);
+  };
 
   return (
     <aside 
@@ -88,7 +109,7 @@ export function Sidebar() {
 
       {/* Nav Items */}
       <nav className="flex-1 px-4 space-y-1.5 scrollbar-hide overflow-y-auto">
-        {navItems.map((item) => {
+        {navItems.filter(i => isItemVisible(i.name)).map((item) => {
           const isActive = pathname === item.href;
           return (
             <Tooltip 
@@ -151,49 +172,51 @@ export function Sidebar() {
           );
         })}
 
-        {/* Settings Item (Integrated into main list) */}
-        <div className="pt-4 mt-4 border-t border-slate-50">
-          <Tooltip 
-            title={isCollapsed ? "Settings" : ""} 
-            placement="right" 
-            arrow 
-            slots={{ transition: Zoom }}
-            slotProps={{
-              tooltip: {
-                sx: {
-                  bgcolor: '#0f172a',
-                  '& .MuiTooltip-arrow': { color: '#0f172a' },
-                  fontSize: '0.75rem',
-                  fontWeight: 700,
-                  padding: '8px 12px',
-                  borderRadius: '8px'
+        {/* Settings Item (Conditional) */}
+        {isItemVisible("Settings") && (
+          <div className="pt-4 mt-4 border-t border-slate-50">
+            <Tooltip 
+              title={isCollapsed ? "Settings" : ""} 
+              placement="right" 
+              arrow 
+              slots={{ transition: Zoom }}
+              slotProps={{
+                tooltip: {
+                  sx: {
+                    bgcolor: '#0f172a',
+                    '& .MuiTooltip-arrow': { color: '#0f172a' },
+                    fontSize: '0.75rem',
+                    fontWeight: 700,
+                    padding: '8px 12px',
+                    borderRadius: '8px'
+                  }
                 }
-              }
-            }}
-          >
-            <Link href="/dashboard/settings">
-              <div className={cn(
-                "flex items-center rounded-xl text-slate-500 hover:bg-slate-50 transition-all group relative",
-                isCollapsed ? "justify-center py-3.5" : "gap-4 px-4 py-3.5",
-                pathname === "/dashboard/settings" ? "bg-brand-soft text-accent" : ""
-              )}>
-                <Settings size={20} className="shrink-0 group-hover:rotate-45 transition-transform" />
-                <AnimatePresence>
-                  {!isCollapsed && (
-                    <motion.span
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -10 }}
-                      className="text-sm font-bold whitespace-nowrap"
-                    >
-                      Settings
-                    </motion.span>
-                  )}
-                </AnimatePresence>
-              </div>
-            </Link>
-          </Tooltip>
-        </div>
+              }}
+            >
+              <Link href="/dashboard/settings">
+                <div className={cn(
+                  "flex items-center rounded-xl text-slate-500 hover:bg-slate-50 transition-all group relative",
+                  isCollapsed ? "justify-center py-3.5" : "gap-4 px-4 py-3.5",
+                  pathname === "/dashboard/settings" ? "bg-brand-soft text-accent" : ""
+                )}>
+                  <Settings size={20} className="shrink-0 group-hover:rotate-45 transition-transform" />
+                  <AnimatePresence>
+                    {!isCollapsed && (
+                      <motion.span
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -10 }}
+                        className="text-sm font-bold whitespace-nowrap"
+                      >
+                        Settings
+                      </motion.span>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </Link>
+            </Tooltip>
+          </div>
+        )}
       </nav>
     </aside>
   );

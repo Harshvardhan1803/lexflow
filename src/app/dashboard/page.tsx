@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   Briefcase,
@@ -12,15 +13,47 @@ import {
   Gavel
 } from "lucide-react";
 import { cn } from "@/utils/utils";
+import { LexLoader } from "@/components/ui/loader";
 
 export default function DashboardOverview() {
+  const [stats, setStats] = useState<any>(null);
+  const [activities, setActivities] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const [statsRes, activityRes] = await Promise.all([
+          fetch("/api/dashboard/stats").then(res => res.json()),
+          fetch("/api/dashboard/activity").then(res => res.json())
+        ]);
+
+        if (statsRes.success) setStats(statsRes.stats);
+        if (activityRes.success) setActivities(activityRes.activity);
+      } catch (error) {
+        console.error("Failed to fetch dashboard data:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    fetchData();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className="h-[70vh] flex items-center justify-center">
+        <LexLoader />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-10">
       {/* Welcome Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
           <h1 className="text-3xl font-display font-bold text-slate-900 mb-2 tracking-tight">
-            Dashboard Overview
+            {stats?.firmName || "Dashboard Overview"}
           </h1>
           <p className="text-slate-500 font-medium">
             Welcome back. Here&apos;s a snapshot of your firm&apos;s current activity.
@@ -38,28 +71,28 @@ export default function DashboardOverview() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard
           title="Active Cases"
-          value="42"
-          change="+12%"
+          value={stats?.totalCases?.toString() || "0"}
+          change={stats?.casesChange || "+0%"}
           isPositive={true}
           icon={<Briefcase size={20} />}
         />
         <StatCard
           title="New Leads"
-          value="128"
-          change="+18%"
+          value={stats?.totalLeads?.toString() || "0"}
+          change={stats?.leadsChange || "+0%"}
           isPositive={true}
           icon={<Users size={20} />}
         />
         <StatCard
           title="Revenue (MRR)"
-          value="$24,500"
+          value={stats?.revenue || "$0"}
           change="-4%"
           isPositive={false}
           icon={<TrendingUp size={20} />}
         />
         <StatCard
           title="Avg. Response"
-          value="1.2h"
+          value={stats?.avgResponseTime || "1.2h"}
           change="-15%"
           isPositive={true}
           icon={<Clock size={20} />}
@@ -80,30 +113,21 @@ export default function DashboardOverview() {
           </div>
 
           <div className="space-y-6">
-            <ActivityItem
-              firm="Green Tree Legal"
-              action="AI Drafted: Motion to Dismiss"
-              time="2h ago"
-              tag="Civil"
-            />
-            <ActivityItem
-              firm="Pacific Law Group"
-              action="Smart Intake: New Lead from Widget"
-              time="4h ago"
-              tag="Family"
-            />
-            <ActivityItem
-              firm="Elite Defense"
-              action="AI Discovery: Uploaded 54 files"
-              time="1d ago"
-              tag="Criminal"
-            />
-            <ActivityItem
-              firm="Elite Defense"
-              action="New Milestone: Trial Date Set"
-              time="2d ago"
-              tag="Criminal"
-            />
+            {activities.length > 0 ? (
+              activities.map((item) => (
+                <ActivityItem
+                  key={item.id}
+                  firm={item.firm}
+                  action={item.action}
+                  time={item.time}
+                  tag={item.tag}
+                />
+              ))
+            ) : (
+              <div className="py-10 text-center">
+                <p className="text-slate-400 font-bold uppercase tracking-widest text-xs">No recent activity found</p>
+              </div>
+            )}
           </div>
         </div>
 
@@ -113,7 +137,7 @@ export default function DashboardOverview() {
             <div className="absolute top-0 right-0 w-32 h-32 bg-accent/20 blur-3xl opacity-50 group-hover:opacity-100 transition-opacity" />
             <h3 className="text-xl font-display font-bold mb-4 relative z-10">AI Intake Ready</h3>
             <p className="text-slate-400 text-sm font-medium mb-6 relative z-10">
-              Your autonomous screening bot has identified 12 high-intent leads today.
+              Your autonomous screening bot has identified {stats?.totalLeads || 0} high-intent leads total.
             </p>
             <button className="w-full bg-accent text-white py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98] transition-all relative z-10">
               Review Leads <ArrowUpRight size={18} />
@@ -183,7 +207,7 @@ interface ActivityItemProps {
 function ActivityItem({ firm, action, time, tag }: ActivityItemProps) {
   return (
     <div className="flex items-center gap-4 group">
-      <div className="w-10 h-10 rounded-xl bg-brand-light flex items-center justify-center text-accent flex-shrink-0">
+      <div className="w-10 h-10 rounded-xl bg-brand-light flex items-center justify-center text-accent shrink-0">
         <Gavel size={18} />
       </div>
       <div className="flex-1">

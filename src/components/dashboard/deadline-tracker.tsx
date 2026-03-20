@@ -31,7 +31,7 @@ export function DeadlineTracker({ leadId }: DeadlineTrackerProps) {
   const fetchDeadlines = async () => {
     setIsLoading(true);
     try {
-      const res = await fetch(`/api/deadlines/${leadId}`);
+      const res = await fetch(`/api/deadlines?contact_id=${leadId}`);
       if (res.ok) {
         const data = await res.json();
         setDeadlines(data.data || []);

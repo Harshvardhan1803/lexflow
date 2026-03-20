@@ -76,12 +76,13 @@ export function AIDraftModal({ isOpen, onClose, clientInfo }: AIDraftModalProps)
   const handleSaveAsNote = async () => {
     setIsSaving(true);
     try {
-      const res = await fetch(`/api/leads/notes/${clientInfo.id}`, {
+      const res = await fetch(`/api/notes`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          contact_id: Number(clientInfo.id),
           content: generatedDraft,
-          type: `AI Draft (${draftType})`
+          type: "AI Action"
         })
       });
 
@@ -111,7 +112,7 @@ export function AIDraftModal({ isOpen, onClose, clientInfo }: AIDraftModalProps)
             initial={{ scale: 0.9, opacity: 0, y: 20 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.9, opacity: 0, y: 20 }}
-            className="relative w-full max-w-2xl bg-white rounded-4xl shadow-2xl overflow-hidden border border-slate-100 flex flex-col max-h-[90vh]"
+            className="relative w-full max-w-2xl bg-white rounded-xl shadow-2xl overflow-hidden border border-slate-100 flex flex-col max-h-[90vh]"
           >
             {/* Header */}
             <div className="p-8 border-b border-slate-50 flex items-center justify-between bg-slate-50/50">

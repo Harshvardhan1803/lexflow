@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
   try {
-    const { draftType, briefNote, clientName, attorneyName, caseType } = await request.json();
+    const { contact_id, draftType, briefNote, clientName, attorneyName, caseType } = await request.json();
 
     // SYSTEM PROMPTS & TEMPLATES
     // In a production environment, this would call the Claude (Anthropic) API.
@@ -80,6 +80,21 @@ ${attorneyName}`
     };
 
     generatedDraft = templates[draftType] || templates["Case Update"];
+
+    // PERSIST TO DATABASE (Dynamic Integration)
+    // Save as a historical note for the client
+    if (contact_id) {
+      try {
+        const { pool } = await import("@/lib/database");
+        await pool.query(
+          "INSERT INTO notes (contact_id, content) VALUES ($1, $2)",
+          [contact_id, `[AI Draft: ${draftType}] ${generatedDraft.substring(0, 150)}...`]
+        );
+      } catch (dbErr) {
+        console.error("Failed to save AI draft to history:", dbErr);
+        // We don't fail the whole request if DB save fails, but we log it.
+      }
+    }
 
     // SIMULATED LATENCY (To feel like AI is thinking)
     await new Promise(resolve => setTimeout(resolve, 1200));

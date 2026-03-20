@@ -159,7 +159,11 @@ export function AddDeadlineModal({ isOpen, onClose, leadId, onSuccess }: AddDead
                   ) : (
                     <>
                       <Sparkles className="text-accent" size={18} />
-                      Generate {selectedType === 'civil' ? '5' : '4'} Deadlines
+                      Generate {
+                        selectedType === 'civil' ? '5' : 
+                        selectedType === 'criminal' ? '4' : 
+                        selectedType === 'family' ? '3' : '2'
+                      } Deadlines
                     </>
                   )}
                 </button>
