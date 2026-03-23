@@ -10,7 +10,11 @@ import {
   ArrowUpDown,
   Sparkles,
   Clock,
-  Briefcase
+  Briefcase,
+  ShieldCheck,
+  ShieldAlert,
+  ShieldQuestion,
+  Loader2
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
@@ -42,6 +46,8 @@ export function LeadsTable({ leads = [], isLoading = false }: { leads?: Lead[], 
   const [activeStatus, setActiveStatus] = useState<LeadStatus | "All">("All");
   const [selectedLeadForDraft, setSelectedLeadForDraft] = useState<Lead | null>(null);
   const [selectedLeadForHistory, setSelectedLeadForHistory] = useState<Lead | null>(null);
+  const [checkingConflictId, setCheckingConflictId] = useState<string | null>(null);
+  const [conflictResults, setConflictResults] = useState<Record<string, { hasConflict: boolean, severity: string, aiExplanation: string }>>({});
 
   const handleStatusUpdate = async (id: string, newStatus: string) => {
     try {
@@ -51,12 +57,37 @@ export function LeadsTable({ leads = [], isLoading = false }: { leads?: Lead[], 
         headers: { "Content-Type": "application/json" }
       });
       if (res.ok) {
-        // In a real app we'd refresh the parent data, for now we can just alert or wait for next fetch
         alert(`Lead successfully updated to ${newStatus}!`);
-        window.location.reload(); // Simple refresh to show changes
+        window.location.reload();
       }
     } catch (err) {
       console.error("Status update failed:", err);
+    }
+  };
+
+  const runConflictCheck = async (lead: Lead) => {
+    setCheckingConflictId(lead.id);
+    try {
+      const res = await fetch("/api/leads/conflict-check", {
+        method: "POST",
+        body: JSON.stringify({ name: lead.name, type: lead.type }),
+        headers: { "Content-Type": "application/json" }
+      });
+      const data = await res.json();
+      if (data.success) {
+        setConflictResults(prev => ({
+          ...prev,
+          [lead.id]: {
+            hasConflict: data.hasConflict,
+            severity: data.severity,
+            aiExplanation: data.aiExplanation
+          }
+        }));
+      }
+    } catch (err) {
+      console.error("Conflict check failed:", err);
+    } finally {
+      setCheckingConflictId(null);
     }
   };
 
@@ -164,6 +195,35 @@ export function LeadsTable({ leads = [], isLoading = false }: { leads?: Lead[], 
                     </td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-2 transition-opacity">
+                        <Tooltip 
+                          title={
+                            conflictResults[lead.id] 
+                              ? `${conflictResults[lead.id].aiExplanation}` 
+                              : "Run AI Conflict Check"
+                          } 
+                          placement="top" 
+                          arrow 
+                          slots={{ transition: Zoom }} 
+                          slotProps={{ tooltip: { sx: { bgcolor: '#0f172a', fontWeight: 500, borderRadius: '8px', maxWidth: 300 } } }}
+                        >
+                          <button
+                            onClick={() => !conflictResults[lead.id] && runConflictCheck(lead)}
+                            disabled={checkingConflictId === lead.id}
+                            className={cn(
+                              "p-2 rounded-lg transition-all",
+                              checkingConflictId === lead.id ? "animate-spin text-slate-300" :
+                              conflictResults[lead.id]?.hasConflict ? "text-red-500 bg-red-50 hover:bg-red-100" :
+                              conflictResults[lead.id] ? "text-green-500 bg-green-50" :
+                              "text-slate-400 hover:text-accent hover:bg-slate-50"
+                            )}
+                          >
+                            {checkingConflictId === lead.id ? <Loader2 size={16} /> : 
+                             conflictResults[lead.id]?.hasConflict ? <ShieldAlert size={16} /> :
+                             conflictResults[lead.id] ? <ShieldCheck size={16} /> :
+                             <ShieldQuestion size={16} />}
+                          </button>
+                        </Tooltip>
+
                         <Tooltip title="AI Draft Response" placement="top" arrow slots={{ transition: Zoom }} slotProps={{ tooltip: { sx: { bgcolor: '#0f172a', fontWeight: 700, borderRadius: '8px' } } }}>
                           <button
                             onClick={() => setSelectedLeadForDraft(lead)}

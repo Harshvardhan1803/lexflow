@@ -37,7 +37,6 @@ CREATE TABLE IF NOT EXISTS contacts (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
--- Cases table
 CREATE TABLE IF NOT EXISTS cases (
     id SERIAL PRIMARY KEY,
     firm_id INTEGER REFERENCES firms(id),
@@ -46,5 +45,45 @@ CREATE TABLE IF NOT EXISTS cases (
     status VARCHAR(50) DEFAULT 'open',
     milestones JSONB,
     assigned_attorney_id INTEGER REFERENCES users(id),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Notes / Activity History table
+CREATE TABLE IF NOT EXISTS notes (
+    id SERIAL PRIMARY KEY,
+    contact_id INTEGER REFERENCES contacts(id),
+    case_id INTEGER REFERENCES cases(id),
+    content TEXT NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Time Entries for Billing
+CREATE TABLE IF NOT EXISTS time_entries (
+    id SERIAL PRIMARY KEY,
+    case_id INTEGER REFERENCES cases(id),
+    attorney_id INTEGER REFERENCES users(id),
+    duration_minutes INTEGER NOT NULL,
+    description TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Invoices
+CREATE TABLE IF NOT EXISTS invoices (
+    id SERIAL PRIMARY KEY,
+    case_id INTEGER REFERENCES cases(id),
+    amount DECIMAL(10, 2) NOT NULL,
+    status VARCHAR(50) DEFAULT 'unpaid',
+    due_date DATE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Case Files / Discovery Room
+CREATE TABLE IF NOT EXISTS case_files (
+    id SERIAL PRIMARY KEY,
+    case_id INTEGER REFERENCES cases(id),
+    uploader_id INTEGER REFERENCES users(id), -- Null if uploaded by client via portal
+    name VARCHAR(255) NOT NULL,
+    url TEXT NOT NULL,
+    size_bytes BIGINT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
