@@ -1,21 +1,44 @@
 import { NextResponse } from "next/server";
 import { pool } from "@/lib/database";
 
-// Fetch all leads for the dashboard
-export async function GET() {
+// Fetch leads for the dashboard with filtering
+export async function GET(request: Request) {
   try {
-    const result = await pool.query(
-      "SELECT * FROM contacts ORDER BY created_at DESC"
-    );
-    
-    if (result.rows.length === 0) {
-      return NextResponse.json({ 
-        success: true, 
-        data: [], 
-        message: "No leads found in the database." 
-      });
+    const { searchParams } = new URL(request.url);
+    const search = searchParams.get("search") || "";
+    const status = searchParams.get("status") || "All";
+
+    let queryStr = "SELECT * FROM contacts";
+    const queryParams: any[] = [];
+    const conditions: string[] = [];
+
+    // Search filter
+    if (search) {
+      queryParams.push(`%${search}%`);
+      conditions.push(`(name ILIKE $${queryParams.length} OR email ILIKE $${queryParams.length})`);
     }
 
+    // Status filter
+    if (status !== "All") {
+      const dbStatus = status === "New" ? "lead" : 
+                       (status === "Converted" ? "case" : 
+                       (status === "Archived" ? "archived" : status.toLowerCase()));
+      queryParams.push(dbStatus);
+      conditions.push(`status = $${queryParams.length}`);
+    } else {
+      // By default, 'All' should probably exclude archived unless specifically requested
+      // But if the user says "All", let's show lead and case, but maybe skip archived?
+      // Actually, let's keep it simple: if "All", show everything.
+    }
+
+    if (conditions.length > 0) {
+      queryStr += " WHERE " + conditions.join(" AND ");
+    }
+
+    queryStr += " ORDER BY created_at DESC";
+
+    const result = await pool.query(queryStr, queryParams);
+    
     return NextResponse.json({ 
       success: true, 
       data: result.rows 

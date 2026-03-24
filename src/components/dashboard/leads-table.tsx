@@ -49,9 +49,21 @@ const mockLeads: Lead[] = [];
 
 import { LexLoader } from "../ui/loader";
 
-export function LeadsTable({ leads = [], isLoading = false }: { leads?: Lead[], isLoading?: boolean }) {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [activeStatus, setActiveStatus] = useState<LeadStatus | "All">("All");
+export function LeadsTable({ 
+  leads = [], 
+  isLoading = false,
+  searchTerm,
+  setSearchTerm,
+  activeStatus,
+  setActiveStatus
+}: { 
+  leads?: Lead[], 
+  isLoading?: boolean,
+  searchTerm: string,
+  setSearchTerm: (val: string) => void,
+  activeStatus: LeadStatus | "All",
+  setActiveStatus: (val: LeadStatus | "All") => void
+}) {
   const [selectedLeadForDraft, setSelectedLeadForDraft] = useState<Lead | null>(null);
   const [selectedLeadForHistory, setSelectedLeadForHistory] = useState<Lead | null>(null);
   const [checkingConflictId, setCheckingConflictId] = useState<string | null>(null);
@@ -124,18 +136,7 @@ export function LeadsTable({ leads = [], isLoading = false }: { leads?: Lead[], 
     }
   };
 
-  const filteredLeads = leads.filter(lead => {
-    // Map database 'case' status to UI 'Converted' status, and 'lead' to 'New'
-    const dbStatus = lead.status as any;
-    const uiStatus = dbStatus === "case" ? "Converted" : (dbStatus === "lead" ? "New" : dbStatus);
-
-    const matchesSearch = lead.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (lead.email && lead.email.toLowerCase().includes(searchTerm.toLowerCase()));
-    const matchesStatus = activeStatus === "All" 
-      ? uiStatus !== "Archived" 
-      : uiStatus === activeStatus;
-    return matchesSearch && matchesStatus;
-  });
+  const filteredLeads = leads; // Already filtered by backend
 
   if (isLoading) {
     return (

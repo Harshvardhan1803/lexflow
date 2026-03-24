@@ -11,18 +11,23 @@ export default function LeadsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [leads, setLeads] = useState<Lead[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [activeStatus, setActiveStatus] = useState<string>("All");
 
   const fetchLeads = async () => {
     try {
       setIsLoading(true);
-      const res = await fetch("/api/leads");
+      const params = new URLSearchParams();
+      if (searchTerm) params.append("search", searchTerm);
+      if (activeStatus !== "All") params.append("status", activeStatus);
+
+      const res = await fetch(`/api/leads?${params.toString()}`);
       if (res.ok) {
         const json = await res.json();
         const data = json.data || [];
 
-        // Map DB data to UI data and filter for 'lead', 'archived', and 'case' status
+        // Map DB data to UI data
         const mappedLeads: Lead[] = data
-          .filter((item: any) => ['lead', 'archived', 'case'].includes(item.status)) 
           .map((item: {
             id: number;
             name: string;
@@ -55,9 +60,13 @@ export default function LeadsPage() {
     }
   };
 
+  // Use a simple debounce for search
   useEffect(() => {
-    fetchLeads();
-  }, []);
+    const timer = setTimeout(() => {
+      fetchLeads();
+    }, 400); // 400ms debounce
+    return () => clearTimeout(timer);
+  }, [searchTerm, activeStatus]);
 
   const handleExport = () => {
     const dataToExport = leads.map(lead => ({
@@ -132,7 +141,14 @@ export default function LeadsPage() {
 
       {/* Main Content: Table */}
       <div className="pt-4">
-        <LeadsTable leads={leads} isLoading={isLoading} />
+        <LeadsTable 
+          leads={leads} 
+          isLoading={isLoading} 
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+          activeStatus={activeStatus as any}
+          setActiveStatus={setActiveStatus as any}
+        />
       </div>
 
       {/* Modals */}
