@@ -7,41 +7,84 @@ export async function PATCH(
 ) {
   try {
     const { id } = await params;
-    const { status } = await request.json();
+    const { status, name, email, phone } = await request.json();
 
-    if (!status) {
-      return NextResponse.json({ success: false, message: "Missing status" }, { status: 400 });
+    const updates: string[] = [];
+    const queryParams: any[] = [];
+    let paramCount = 1;
+
+    if (status) {
+      const dbStatus = status === "Converted" ? "case" : (status === "Archived" ? "archived" : "lead");
+      updates.push(`status = $${paramCount++}`);
+      queryParams.push(dbStatus);
+    }
+    if (name) {
+      updates.push(`name = $${paramCount++}`);
+      queryParams.push(name);
+    }
+    if (email) {
+      updates.push(`email = $${paramCount++}`);
+      queryParams.push(email);
+    }
+    if (phone) {
+      updates.push(`phone = $${paramCount++}`);
+      queryParams.push(phone);
     }
 
-    // Map 'Converted' UI status to 'case' database status for Active Cases tracking
-    const dbStatus = status === "Converted" ? "case" : "lead";
+    if (updates.length === 0) {
+      return NextResponse.json({ success: false, message: "No fields provided for update" }, { status: 400 });
+    }
 
-    const result = await query(
-      "UPDATE contacts SET status = $1 WHERE id = $2 RETURNING *",
-      [dbStatus, id]
-    );
+    const queryStr = `UPDATE contacts SET ${updates.join(", ")} WHERE id = $${paramCount} RETURNING *`;
+    queryParams.push(id);
+
+    const result = await query(queryStr, queryParams);
 
     if (result.rowCount === 0) {
       return NextResponse.json({ success: false, message: "Lead not found" }, { status: 404 });
     }
 
-    // Automatically log this action to the audit/activity history table
-    try {
-      await query(
-        "INSERT INTO notes (contact_id, content, type) VALUES ($1, $2, $3)",
-        [id, `Lead status was updated to ${status}.`, "Status Change"]
-      );
-    } catch (logError) {
-      console.error("Failed to log status change:", logError);
+    // Automatically log this action if it's a status change
+    if (status) {
+      try {
+        await query(
+          "INSERT INTO notes (contact_id, content, type) VALUES ($1, $2, $3)",
+          [id, `Lead status was updated to ${status}.`, "Status Change"]
+        );
+      } catch (logError) {
+        console.error("Failed to log status change:", logError);
+      }
     }
 
     return NextResponse.json({
       success: true,
       data: result.rows[0],
-      message: `Lead status updated to ${status}`
+      message: `Lead updated successfully`
     });
   } catch (error) {
     console.error("Update Lead Status Error:", error);
     return NextResponse.json({ success: false, message: "Failed to update lead status" }, { status: 500 });
+  }
+}
+
+export async function DELETE(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    const result = await query("DELETE FROM contacts WHERE id = $1 RETURNING *", [id]);
+
+    if (result.rowCount === 0) {
+      return NextResponse.json({ success: false, message: "Lead not found" }, { status: 404 });
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: "Lead deleted successfully"
+    });
+  } catch (error) {
+    console.error("Delete Lead Error:", error);
+    return NextResponse.json({ success: false, message: "Failed to delete lead" }, { status: 500 });
   }
 }

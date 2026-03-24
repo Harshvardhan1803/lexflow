@@ -14,6 +14,7 @@ import {
   AlertCircle
 } from "lucide-react";
 import { cn } from "@/utils/utils";
+import { toast } from "react-hot-toast";
 
 interface AIDraftModalProps {
   isOpen: boolean;
@@ -232,7 +233,7 @@ export function AIDraftModal({ isOpen, onClose, clientInfo }: AIDraftModalProps)
                       {isSaving ? "Saving..." : "Save as Note"}
                     </button>
                     <button
-                      onClick={() => alert("Email feature coming soon in pro version!")}
+                      onClick={() => toast.success("Email feature coming soon in pro version!", { icon: "🚀" })}
                       className="flex-1 py-4 bg-accent text-white rounded-xl font-bold flex items-center justify-center gap-2 hover:scale-[1.02] shadow-lg shadow-accent/20 transition-all"
                     >
                       <Send size={18} /> Send to Client

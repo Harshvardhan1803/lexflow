@@ -20,9 +20,9 @@ export default function LeadsPage() {
         const json = await res.json();
         const data = json.data || [];
 
-        // Map DB data to UI data and filter only for 'lead' status
+        // Map DB data to UI data and filter for 'lead', 'archived', and 'case' status
         const mappedLeads: Lead[] = data
-          .filter((item: any) => item.status === 'lead') // Only show leads on the intake page
+          .filter((item: any) => ['lead', 'archived', 'case'].includes(item.status)) 
           .map((item: {
             id: number;
             name: string;
@@ -38,8 +38,10 @@ export default function LeadsPage() {
             email: item.email || "No Email",
             phone: item.phone || "No Phone",
             source: item.intake_answers?.source || "Website Widget",
-            // Map DB status 'lead' to UI 'New' for this demo
-            status: item.status === 'lead' ? 'New' : item.status,
+            // Map DB status to UI status
+            status: item.status === 'lead' ? 'New' : 
+                   (item.status === 'case' ? 'Converted' : 
+                   (item.status === 'archived' ? 'Archived' : item.status)),
             date: new Date(item.created_at).toISOString().split('T')[0],
             type: item.intake_answers?.selected_case_type || "General Intake",
             score: item.lead_score

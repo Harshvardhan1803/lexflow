@@ -14,7 +14,11 @@ import {
   ShieldCheck,
   ShieldAlert,
   ShieldQuestion,
-  Loader2
+  Loader2,
+  Trash2,
+  Archive,
+  Edit2,
+  RotateCcw
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
@@ -23,8 +27,12 @@ import { AIDraftModal } from "./ai-draft-modal";
 import { CaseNotesDrawer } from "./case-notes-drawer";
 import Tooltip from '@mui/material/Tooltip';
 import Zoom from '@mui/material/Zoom';
+import { EditLeadModal } from "./edit-lead-modal";
+import { toast } from "react-hot-toast";
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
 
-export type LeadStatus = "New" | "Screening" | "Qualified" | "Disqualified" | "Converted";
+export type LeadStatus = "New" | "Screening" | "Qualified" | "Disqualified" | "Converted" | "Archived";
 
 export interface Lead {
   id: string;
@@ -48,6 +56,31 @@ export function LeadsTable({ leads = [], isLoading = false }: { leads?: Lead[], 
   const [selectedLeadForHistory, setSelectedLeadForHistory] = useState<Lead | null>(null);
   const [checkingConflictId, setCheckingConflictId] = useState<string | null>(null);
   const [conflictResults, setConflictResults] = useState<Record<string, { hasConflict: boolean, severity: string, aiExplanation: string }>>({});
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [activeLeadId, setActiveLeadId] = useState<string | null>(null);
+  const [selectedLeadForEdit, setSelectedLeadForEdit] = useState<Lead | null>(null);
+
+  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, id: string) => {
+    setAnchorEl(event.currentTarget);
+    setActiveLeadId(id);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+    setActiveLeadId(null);
+  };
+
+  const handleDeleteLead = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this lead?")) return;
+    try {
+      const res = await fetch(`/api/leads/${id}`, { method: "DELETE" });
+      if (res.ok) {
+        window.location.reload();
+      }
+    } catch (err) {
+      console.error("Delete failed:", err);
+    }
+  };
 
   const handleStatusUpdate = async (id: string, newStatus: string) => {
     try {
@@ -57,7 +90,7 @@ export function LeadsTable({ leads = [], isLoading = false }: { leads?: Lead[], 
         headers: { "Content-Type": "application/json" }
       });
       if (res.ok) {
-        alert(`Lead successfully updated to ${newStatus}!`);
+        toast.success(`Lead successfully updated to ${newStatus}!`);
         window.location.reload();
       }
     } catch (err) {
@@ -98,7 +131,9 @@ export function LeadsTable({ leads = [], isLoading = false }: { leads?: Lead[], 
 
     const matchesSearch = lead.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (lead.email && lead.email.toLowerCase().includes(searchTerm.toLowerCase()));
-    const matchesStatus = activeStatus === "All" || uiStatus === activeStatus;
+    const matchesStatus = activeStatus === "All" 
+      ? uiStatus !== "Archived" 
+      : uiStatus === activeStatus;
     return matchesSearch && matchesStatus;
   });
 
@@ -126,7 +161,7 @@ export function LeadsTable({ leads = [], isLoading = false }: { leads?: Lead[], 
         </div>
 
         <div className="flex items-center gap-2 overflow-x-auto pb-2 md:pb-0 scrollbar-hide">
-          {["All", "New", "Screening", "Qualified", "Disqualified", "Converted"].map((status) => (
+          {["All", "New", "Screening", "Qualified", "Disqualified", "Converted", "Archived"].map((status) => (
             <button
               key={status}
               onClick={() => setActiveStatus(status as LeadStatus | "All")}
@@ -144,7 +179,7 @@ export function LeadsTable({ leads = [], isLoading = false }: { leads?: Lead[], 
       </div>
 
       {/* Table */}
-      <div className="bg-white border border-slate-100 rounded-xl overflow-hidden shadow-sm">
+      <div className="bg-white border border-slate-100 rounded-xl shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
@@ -162,7 +197,7 @@ export function LeadsTable({ leads = [], isLoading = false }: { leads?: Lead[], 
             </thead>
             <tbody className="divide-y divide-slate-50">
               <AnimatePresence mode="popLayout">
-                {filteredLeads.map((lead) => (
+                {filteredLeads.map((lead, index) => (
                   <motion.tr
                     layout
                     initial={{ opacity: 0 }}
@@ -262,11 +297,108 @@ export function LeadsTable({ leads = [], isLoading = false }: { leads?: Lead[], 
                           </Tooltip>
                         )}
 
-                        <Tooltip title="More Actions" placement="top" arrow slots={{ transition: Zoom }} slotProps={{ tooltip: { sx: { bgcolor: '#0f172a', fontWeight: 700, borderRadius: '8px' } } }}>
-                          <button className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-all">
-                            <MoreHorizontal size={16} />
-                          </button>
-                        </Tooltip>
+                        <div className="relative">
+                          <Tooltip title="More Actions" placement="top" arrow slots={{ transition: Zoom }} slotProps={{ tooltip: { sx: { bgcolor: '#0f172a', fontWeight: 700, borderRadius: '8px' } } }}>
+                            <button 
+                              onClick={(e) => handleMenuOpen(e, lead.id)}
+                              className={cn(
+                                "p-2 rounded-lg transition-all",
+                                activeLeadId === lead.id ? "bg-slate-100 text-slate-900" : "text-slate-400 hover:text-slate-600 hover:bg-slate-100"
+                              )}
+                            >
+                              <MoreHorizontal size={16} />
+                            </button>
+                          </Tooltip>
+
+                          <Menu
+                            anchorEl={anchorEl}
+                            open={Boolean(anchorEl) && activeLeadId === lead.id}
+                            onClose={handleMenuClose}
+                            TransitionComponent={Zoom}
+                            PaperProps={{
+                              sx: {
+                                mt: 1,
+                                borderRadius: '12px',
+                                border: '1px solid #f1f5f9',
+                                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+                                padding: '6px',
+                                minWidth: '180px'
+                              }
+                            }}
+                          >
+                            <MenuItem 
+                              onClick={() => {
+                                setSelectedLeadForEdit(lead);
+                                handleMenuClose();
+                              }}
+                              sx={{
+                                fontSize: '11px',
+                                fontWeight: 700,
+                                color: '#475569',
+                                gap: '12px',
+                                borderRadius: '8px',
+                                '&:hover': { bgcolor: '#f8fafc' }
+                              }}
+                            >
+                              <Edit2 size={14} /> Edit Lead
+                            </MenuItem>
+                            
+                            {lead.status === "Archived" ? (
+                              <MenuItem 
+                                onClick={() => {
+                                  handleStatusUpdate(lead.id, "New");
+                                  handleMenuClose();
+                                }}
+                                sx={{
+                                  fontSize: '11px',
+                                  fontWeight: 700,
+                                  color: '#16a34a',
+                                  gap: '12px',
+                                  borderRadius: '8px',
+                                  '&:hover': { bgcolor: '#f0fdf4' }
+                                }}
+                              >
+                                <RotateCcw size={14} /> Restore Lead
+                              </MenuItem>
+                            ) : (
+                              <MenuItem 
+                                onClick={() => {
+                                  handleStatusUpdate(lead.id, "Archived");
+                                  handleMenuClose();
+                                }}
+                                sx={{
+                                  fontSize: '11px',
+                                  fontWeight: 700,
+                                  color: '#475569',
+                                  gap: '12px',
+                                  borderRadius: '8px',
+                                  '&:hover': { bgcolor: '#f8fafc' }
+                                }}
+                              >
+                                <Archive size={14} /> Archive Lead
+                              </MenuItem>
+                            )}
+                            
+                            <div className="my-1 border-t border-slate-50" />
+                            
+                            <MenuItem 
+                              onClick={() => {
+                                handleDeleteLead(lead.id);
+                                handleMenuClose();
+                              }}
+                              sx={{
+                                fontSize: '11px',
+                                fontWeight: 700,
+                                color: '#ef4444',
+                                gap: '12px',
+                                borderRadius: '8px',
+                                '&:hover': { bgcolor: '#fef2f2' }
+                              }}
+                            >
+                              <Trash2 size={14} /> Delete Lead
+                            </MenuItem>
+                          </Menu>
+                        </div>
                       </div>
                     </td>
                   </motion.tr>
@@ -306,6 +438,15 @@ export function LeadsTable({ leads = [], isLoading = false }: { leads?: Lead[], 
           leadName={selectedLeadForHistory.name}
         />
       )}
+
+      {selectedLeadForEdit && (
+        <EditLeadModal
+          isOpen={!!selectedLeadForEdit}
+          onClose={() => setSelectedLeadForEdit(null)}
+          onSuccess={() => window.location.reload()}
+          lead={selectedLeadForEdit}
+        />
+      )}
     </div>
   );
 }
@@ -316,7 +457,8 @@ function StatusBadge({ status }: { status: LeadStatus }) {
     Screening: "bg-brand-soft text-accent border-brand-soft",
     Qualified: "bg-green-50 text-green-600 border-green-100",
     Disqualified: "bg-red-50 text-red-600 border-red-100",
-    Converted: "bg-slate-900 text-white border-slate-900"
+    Converted: "bg-slate-900 text-white border-slate-900",
+    Archived: "bg-slate-100 text-slate-400 border-slate-200"
   };
 
   return (

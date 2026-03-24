@@ -22,6 +22,8 @@ export const metadata: Metadata = {
 
 import { IntakeBot } from "@/components/ui/intake-bot";
 
+import { Toaster } from "react-hot-toast";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -34,6 +36,19 @@ export default function RootLayout({
       >
         {children}
         <IntakeBot />
+        <Toaster 
+          position="top-center"
+          toastOptions={{
+            style: {
+              background: '#0f172a',
+              color: '#fff',
+              fontSize: '12px',
+              fontWeight: 'bold',
+              borderRadius: '12px',
+              padding: '12px 24px',
+            },
+          }}
+        />
       </body>
     </html>
   );
