@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { UserPlus, Download } from "lucide-react";
-import { cn } from "@/utils/utils";
+import { cn, downloadCSV } from "@/utils/utils";
 import { LeadsTable, Lead } from "@/components/dashboard/leads-table";
 import { NewLeadModal } from "@/components/dashboard/new-lead-modal";
 
@@ -57,6 +57,22 @@ export default function LeadsPage() {
     fetchLeads();
   }, []);
 
+  const handleExport = () => {
+    const dataToExport = leads.map(lead => ({
+      ID: lead.id,
+      Name: lead.name,
+      Email: lead.email,
+      Phone: lead.phone,
+      Source: lead.source,
+      Status: lead.status,
+      Type: lead.type,
+      Date: lead.date
+    }));
+    
+    const timestamp = new Date().toISOString().split('T')[0];
+    downloadCSV(dataToExport, `lexflow-leads-${timestamp}.csv`);
+  };
+
   const totalLeads = leads.length;
   const newLeads = leads.filter(l => l.status === 'New').length;
   const conversionPoints = leads.filter(l => l.status === 'Converted').length;
@@ -76,7 +92,10 @@ export default function LeadsPage() {
         </div>
 
         <div className="flex items-center gap-3">
-          <button className="p-2.5 rounded-xl bg-white border border-slate-100 text-slate-500 hover:text-accent hover:border-accent/30 transition-all flex items-center gap-2 text-sm font-bold shadow-sm">
+          <button 
+            onClick={handleExport}
+            className="p-2.5 rounded-xl bg-white border border-slate-100 text-slate-500 hover:text-accent hover:border-accent/30 transition-all flex items-center gap-2 text-sm font-bold shadow-sm"
+          >
             <Download size={18} /> Export
           </button>
           <button
