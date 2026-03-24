@@ -18,51 +18,64 @@ export default function ActiveCasesPage() {
   const [cases, setCases] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [deadlinesCount, setDeadlinesCount] = useState(0);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [activeStatus, setActiveStatus] = useState<string>("Converted");
+
+  const fetchData = async () => {
+    try {
+      setIsLoading(true);
+      const params = new URLSearchParams();
+      if (searchTerm) params.append("search", searchTerm);
+      // Use the selected filter, default to Converted for this page
+      params.append("status", activeStatus);
+
+      const [leadsRes, deadlinesRes] = await Promise.all([
+        fetch(`/api/leads?${params.toString()}`),
+        fetch("/api/deadlines")
+      ]);
+
+      if (leadsRes.ok) {
+        const res = await leadsRes.json();
+        const data = res.data || [];
+        const activeCases = data.map((item: any) => ({
+            id: item.id.toString(),
+            name: item.name,
+            email: item.email || "No Email",
+            phone: item.phone || "No Phone",
+            source: item.intake_answers?.source || "Website Widget",
+            // Map DB status back to UI status for consistency
+            status: item.status === 'lead' ? 'New' : 
+                   (item.status === 'case' ? 'Converted' : 
+                   (item.status === 'archived' ? 'Archived' : item.status)),
+            date: new Date(item.created_at).toISOString().split('T')[0],
+            type: item.intake_answers?.selected_case_type || "General Intake"
+          }));
+        setCases(activeCases);
+      }
+
+      if (deadlinesRes.ok) {
+        const data = await deadlinesRes.json();
+        const upcoming = (data.data || []).filter((d: any) => {
+          const date = new Date(d.date);
+          const weekAway = new Date();
+          weekAway.setDate(weekAway.getDate() + 7);
+          return d.status === 'pending' && date <= weekAway;
+        });
+        setDeadlinesCount(upcoming.length);
+      }
+    } catch (err) {
+      console.error("Fetch cases failed:", err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [leadsRes, deadlinesRes] = await Promise.all([
-          fetch("/api/leads"),
-          fetch("/api/deadlines")
-        ]);
-
-        if (leadsRes.ok) {
-          const res = await leadsRes.json();
-          const data = res.data || [];
-          const activeCases = data
-            .filter((item: any) => item.status === "case")
-            .map((item: any) => ({
-              id: item.id.toString(),
-              name: item.name,
-              email: item.email || "No Email",
-              phone: item.phone || "No Phone",
-              source: item.intake_answers?.source || "Website Widget",
-              status: "Converted",
-              date: new Date(item.created_at).toISOString().split('T')[0],
-              type: item.intake_answers?.selected_case_type || "General Intake"
-            }));
-          setCases(activeCases);
-        }
-
-        if (deadlinesRes.ok) {
-          const data = await deadlinesRes.json();
-          const upcoming = (data.data || []).filter((d: any) => {
-            const date = new Date(d.date);
-            const weekAway = new Date();
-            weekAway.setDate(weekAway.getDate() + 7);
-            return d.status === 'pending' && date <= weekAway;
-          });
-          setDeadlinesCount(upcoming.length);
-        }
-      } catch (err) {
-        console.error("Fetch cases failed:", err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchData();
-  }, []);
+    const timer = setTimeout(() => {
+      fetchData();
+    }, 400); 
+    return () => clearTimeout(timer);
+  }, [searchTerm, activeStatus]);
 
   return (
     <div className="space-y-8 animate-in fade-in duration-700">
@@ -119,7 +132,14 @@ export default function ActiveCasesPage() {
           </div>
         </div>
 
-        <LeadsTable leads={cases} isLoading={isLoading} />
+        <LeadsTable 
+          leads={cases} 
+          isLoading={isLoading} 
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+          activeStatus={activeStatus as any}
+          setActiveStatus={setActiveStatus as any}
+        />
       </div>
     </div>
   );

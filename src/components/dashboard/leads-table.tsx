@@ -52,17 +52,17 @@ import { LexLoader } from "../ui/loader";
 export function LeadsTable({ 
   leads = [], 
   isLoading = false,
-  searchTerm,
-  setSearchTerm,
-  activeStatus,
-  setActiveStatus
+  searchTerm = "",
+  setSearchTerm = () => {},
+  activeStatus = "All",
+  setActiveStatus = () => {}
 }: { 
   leads?: Lead[], 
   isLoading?: boolean,
-  searchTerm: string,
-  setSearchTerm: (val: string) => void,
-  activeStatus: LeadStatus | "All",
-  setActiveStatus: (val: LeadStatus | "All") => void
+  searchTerm?: string,
+  setSearchTerm?: (val: string) => void,
+  activeStatus?: LeadStatus | "All",
+  setActiveStatus?: (val: LeadStatus | "All") => void
 }) {
   const [selectedLeadForDraft, setSelectedLeadForDraft] = useState<Lead | null>(null);
   const [selectedLeadForHistory, setSelectedLeadForHistory] = useState<Lead | null>(null);
